@@ -1,0 +1,30 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Resultado – {{ exam.title }} – LearnHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="{% static 'enrollment/css/style.css' %}">
+<link rel="stylesheet" href="{% static 'student_portal/css/portal.css' %}">
+</head>
+<body>
+<div class="rwrap">
+<div class="rcard">
+  <div class="icon">{% if attempt.passed %}🎉{% else %}😢{% endif %}</div>
+  <h1 class="rh1">{{ exam.title }}</h1>
+  <div class="rscore {% if attempt.passed %}good{% else %}bad{% endif %}">{{ attempt.score }}/{{ attempt.total }}</div>
+  <div class="rdetail">
+    {% widthratio attempt.score attempt.total 100 %}% de respuestas correctas<br>
+    Nota mínima requerida: {{ exam.passing_score }}%<br>
+    {% if attempt.passed %}✅ ¡Felicidades! Has aprobado el examen.{% else %}❌ No has alcanzado la nota mínima. Vuelve a intentarlo.{% endif %}
+  </div>
+  <div class="rbtns">
+    <a href="{% url 'take_exam' exam.pk %}" class="rbtn rbtn-primary">🔄 Reintentar</a>
+    <a href="{% url 'student_course_detail' exam.course.pk %}?tab=examen" class="rbtn btn-ok">← Volver al curso</a>
+  </div>
+  </div>
+</div>
+</body>
+</html>

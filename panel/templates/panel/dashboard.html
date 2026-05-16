@@ -1,0 +1,332 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dashboard Admin – LearnHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="{% static 'panel/css/dashboard.css' %}">
+</head>
+<body>
+
+<aside class="sb">
+  <div class="logo">Learn<span>Hub</span></div>
+
+  <div class="ns">Principal</div>
+  <a href="#sec-overview" class="ni active"><span class="ic">📊</span><span>Dashboard</span></a>
+  <a href="#sec-students" class="ni"><span class="ic">👥</span><span>Estudiantes</span></a>
+  <a href="{% url 'notifications_view' %}" class="ni"><span class="ic">🔔</span><span>Notificaciones</span>{% if total_pending > 0 %}<span class="sb-notif-badge">{{ total_pending }}</span>{% endif %}</a>
+
+
+  <div class="ns">Acciones</div>
+  <a href="{% url 'course_list' %}" class="ni"><span class="ic">📚</span><span>Cursos</span></a>
+  <a href="{% url 'export_csv' %}" class="ni"><span class="ic">📥</span><span>Exportar CSV</span></a>
+  <a href="/" class="ni"><span class="ic">🌐</span><span>Ver sitio web</span></a>
+  <a href="/admin/" class="ni"><span class="ic">⚙️</span><span>Django Admin</span></a>
+
+  <div class="sf">
+    <div class="up">
+      <div class="av">{{ request.user.username|slice:":1"|upper }}</div>
+      <div class="ui"><strong>{{ request.user.username }}</strong><small>Administrador</small></div>
+    </div>
+    <a href="{% url 'admin_logout' %}" class="lb"><span class="ic">🚪</span><span>Cerrar sesión</span></a>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="tb">
+    <h1 class="pt">Panel de <span>Administración</span></h1>
+    <a href="{% url 'export_csv' %}" class="ebtn">📥 Exportar CSV</a>
+  </div>
+
+  <!-- STUDENTS -->
+  <div class="sec" id="sec-students">
+    <div class="tc">
+      <div class="th"><span class="tt">Estudiantes Inscritos</span>
+        <input type="text" id="srch" class="sb2" placeholder="🔍 Buscar por nombre o correo…">
+      </div>
+      <table>
+        <thead><tr><th>#</th><th>Nombre / Correo</th><th>Nivel</th><th>Estado</th><th>Usuario / Clave</th><th>Acciones</th></tr></thead>
+        <tbody id="stb">
+          {% for s in students %}
+          <tr data-id="{{ s.pk }}" data-name="{{ s.name }}" data-email="{{ s.email }}" data-level="{{ s.level }}">
+            <td>{{ s.pk }}</td>
+            <td><strong>{{ s.name }}</strong><br><small style="color:var(--mu)">{{ s.email }}</small></td>
+            <td><span class="bx b-{{ s.level }}">{{ s.get_level_display }}</span></td>
+            <td>{% if s.status == 'pending' %}<span class="bx b-p">Pendiente</span>{% elif s.status == 'accepted' %}<span class="bx b-a">Aceptado</span>{% else %}<span class="bx b-r">Rechazado</span>{% endif %}</td>
+            <td>
+                {% if s.user and s.generated_password %}
+                  <div style="font-family:monospace;font-size:0.85rem">
+                    <span style="color:var(--acc)">{{ s.user.username }}</span><br>
+                    <span style="color:#94a3b8">{{ s.generated_password }}</span>
+                  </div>
+                {% else %}
+                  <span style="color:var(--mu);font-size:0.8rem">—</span>
+                {% endif %}
+            </td>
+            <td>
+               <a href="{% url 'student_edit' s.pk %}" class="actb btn-ed" data-ed="{{ s.pk }}" data-name="{{ s.name }}" data-email="{{ s.email }}" data-level="{{ s.level }}">✏️ Editar</a>
+              <form method="POST" action="{% url 'student_delete' s.pk %}" class="del-form" style="display:inline">
+                {% csrf_token %}
+                <button class="actb btn-dl" type="submit">🗑️</button>
+              </form>
+            </td>
+          </tr>
+          {% empty %}<tr><td colspan="6" style="text-align:center;color:var(--mu);padding:3rem">Sin estudiantes registrados.</td></tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div class="sec active" id="sec-overview">
+    <div class="sg">
+      <div class="sc sc-total"><div class="sl">👥 Total Inscritos</div><div class="sv">{{ total }}</div><div class="ss">Estudiantes registrados</div></div>
+      <div class="sc sc-pending"><div class="sl">⏳ Pendientes</div><div class="sv">{{ pending }}</div><div class="ss">Esperando revisión</div></div>
+      <div class="sc sc-accepted"><div class="sl">✅ Aceptados</div><div class="sv">{{ accepted }}</div><div class="ss">Inscripción confirmada</div></div>
+      <div class="sc sc-rejected"><div class="sl">❌ Rechazados</div><div class="sv">{{ rejected }}</div><div class="ss">No aprobados</div></div>
+      <div class="sc sc-recent"><div class="sl">📅 Esta Semana</div><div class="sv">{{ recent }}</div><div class="ss">Nuevas solicitudes</div></div>
+    </div>
+    <div class="cr">
+      <div class="cc">
+        <div class="ct" style="display:flex;justify-content:space-between;align-items:center">
+          <span>Distribución por Nivel</span>
+          <div style="display:flex;gap:0.75rem;font-size:0.7rem">
+            <span style="display:flex;align-items:center;gap:0.3rem"><span style="width:10px;height:10px;background:#4ade80;border-radius:50%"></span>Principiante</span>
+            <span style="display:flex;align-items:center;gap:0.3rem"><span style="width:10px;height:10px;background:#fbbf24;border-radius:50%"></span>Intermedio</span>
+            <span style="display:flex;align-items:center;gap:0.3rem"><span style="width:10px;height:10px;background:#a78bfa;border-radius:50%"></span>Avanzado</span>
+          </div>
+        </div>
+        <div class="cw" style="height:220px;display:flex;align-items:center;justify-content:center">
+          <canvas id="chartDona" style="max-height:200px;max-width:100%"></canvas>
+        </div>
+      </div>
+      <div class="cc">
+        <div class="ct" style="display:flex;justify-content:space-between;align-items:center">
+          <span>Por Estado</span>
+          <div style="display:flex;gap:0.75rem;font-size:0.7rem">
+            <span style="display:flex;align-items:center;gap:0.3rem"><span style="width:10px;height:10px;background:#fbbf24;border-radius:3px"></span>Pendiente</span>
+            <span style="display:flex;align-items:center;gap:0.3rem"><span style="width:10px;height:10px;background:#4ade80;border-radius:3px"></span>Aceptado</span>
+            <span style="display:flex;align-items:center;gap:0.3rem"><span style="width:10px;height:10px;background:#f87171;border-radius:3px"></span>Rechazado</span>
+          </div>
+        </div>
+        <div class="cw" style="height:220px;display:flex;align-items:center;justify-content:center">
+          <canvas id="chartStatus" style="max-height:200px;max-width:100%"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Edit modal -->
+<div class="mo" id="edit-mo">
+  <div class="mbox">
+    <div class="mt">✏️ Editar Estudiante</div>
+    <div class="mf"><label>Nombre</label><input id="en" type="text"></div>
+    <div class="mf"><label>Correo</label><input id="ee" type="email"></div>
+    <div class="mf"><label>Nivel</label><select id="el"><option value="principiante">Principiante</option><option value="intermedio">Intermedio</option><option value="avanzado">Avanzado</option></select></div>
+    <div class="ma"><button class="bcn close-btn">Cancelar</button><button class="bsv save-edit-btn">💾 Guardar</button></div>
+  </div>
+</div>
+
+<!-- Delete modal -->
+<div class="mo" id="del-mo">
+  <div class="mbox">
+    <div class="mt">🗑️ Confirmar eliminación</div>
+    <p style="color:var(--mu);font-size:.88rem;margin-bottom:1.25rem">¿Seguro que deseas eliminar este estudiante? Esta acción no se puede deshacer.</p>
+    <div class="ma"><button class="bcn close-btn">Cancelar</button><button class="bsv bsv-red confirm-del-btn">🗑️ Sí, eliminar</button></div>
+  </div>
+</div>
+
+<!-- Credentials modal -->
+<div class="mo" id="cred-mo">
+  <div class="mbox" style="max-width:440px">
+    <div class="mt">🎉 Estudiante Aceptado — Credenciales Generadas</div>
+    <p style="color:var(--mu);font-size:.82rem;margin-bottom:1.5rem">Comparte estas credenciales con el estudiante para que acceda a su portal.</p>
+    <div class="mf"><label>Usuario</label><input id="cred-user" type="text" readonly style="font-size:1rem;font-weight:700;letter-spacing:.05em;background:rgba(79,142,247,0.05)"></div>
+    <div class="mf"><label>Contraseña</label><input id="cred-pw" type="text" readonly style="font-size:1rem;font-weight:700;letter-spacing:.05em;background:rgba(79,142,247,0.05)"></div>
+    <div class="ma">
+      <button class="bcn copy-creds-btn">📋 Copiar</button>
+      <button class="bsv close-btn">✅ Listo</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const CSRF = '{{ csrf_token }}';
+    let curId = null;
+
+    // ─── Sidebar active state (enhancement — CSS :target handles navigation) ─
+    function updateActiveSidebar() {
+        const hash = window.location.hash || '#sec-overview';
+        document.querySelectorAll('a.ni').forEach(function(n) { n.classList.remove('active'); });
+        const link = document.querySelector('a.ni[href="' + hash + '"]');
+        if (link) link.classList.add('active');
+    }
+    window.addEventListener('hashchange', updateActiveSidebar);
+    updateActiveSidebar();
+
+    // ─── Charts ────────────────────────────────────────────────────────────
+    (function initCharts() {
+        try {
+            const chartDona = document.getElementById('chartDona');
+            const chartStatus = document.getElementById('chartStatus');
+            
+            if (typeof Chart === 'undefined') {
+                console.error('Chart.js no está cargado');
+                return;
+            }
+            
+            if (chartDona) {
+                new Chart(chartDona.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Principiante', 'Intermedio', 'Avanzado'],
+                        datasets: [{
+                            data: [{{ principiante|default:0 }}, {{ intermedio|default:0 }}, {{ avanzado|default:0 }}],
+                            backgroundColor: ['#4ade80', '#fbbf24', '#a78bfa'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { color: '#94a3b8', padding: 20 }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            if (chartStatus) {
+                new Chart(chartStatus.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['Pendientes', 'Aceptados', 'Rechazados'],
+                        datasets: [{
+                            data: [{{ pending|default:0 }}, {{ accepted|default:0 }}, {{ rejected|default:0 }}],
+                            backgroundColor: ['#fbbf24', '#4ade80', '#f87171'],
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, ticks: { color: '#94a3b8' } },
+                            x: { ticks: { color: '#94a3b8' } }
+                        }
+                    }
+                });
+            }
+        } catch (err) {
+            console.error('Error creando gráficos:', err);
+        }
+    })();
+
+    // ─── Student Edit (progressive enhancement: intercept link → modal) ────
+    document.querySelectorAll('.btn-ed').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            curId = this.getAttribute('data-ed');
+            document.getElementById('en').value = this.getAttribute('data-name');
+            document.getElementById('ee').value = this.getAttribute('data-email');
+            document.getElementById('el').value = this.getAttribute('data-level');
+            document.getElementById('edit-mo').classList.add('open');
+        });
+    });
+
+    // ─── Student Delete (progressive enhancement) ──────────────────────────
+    document.querySelectorAll('.del-form').forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            curId = this.querySelector('[name=csrfmiddlewaretoken]').value;
+            const row = this.closest('tr');
+            if (row) curId = row.getAttribute('data-id');
+            document.getElementById('del-mo').classList.add('open');
+            window._delForm = this;
+        });
+    });
+
+    // ─── Save Edit ─────────────────────────────────────────────────────────
+    document.querySelector('.save-edit-btn').addEventListener('click', function() {
+        fetch('/panel/estudiante/' + curId + '/editar/', {
+            method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken':CSRF},
+            body:JSON.stringify({
+                name:document.getElementById('en').value,
+                email:document.getElementById('ee').value,
+                level:document.getElementById('el').value
+            })
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            if(d.status==='success'){ showToast('✅ Estudiante actualizado'); setTimeout(function() { location.reload(); }, 900); }
+        });
+    });
+
+    // ─── Confirm Delete ────────────────────────────────────────────────────
+    document.querySelector('.confirm-del-btn').addEventListener('click', function() {
+        const delForm = window._delForm;
+        if (!delForm) { closeMo(); return; }
+        const url = delForm.getAttribute('action');
+        const csrf = delForm.querySelector('[name=csrfmiddlewaretoken]').value;
+        const row = delForm.closest('tr');
+        const sid = row ? row.getAttribute('data-id') : null;
+        fetch(url, {method:'POST', headers:{'X-CSRFToken':csrf, 'X-Requested-With':'XMLHttpRequest'}})
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            if(d.status==='success'){
+                closeMo();
+                if (row) row.remove();
+                showToast('🗑️ Estudiante eliminado');
+            }
+        });
+    });
+
+    // ─── Copy Credentials ──────────────────────────────────────────────────
+    document.querySelector('.copy-creds-btn').addEventListener('click', function() {
+        const u = document.getElementById('cred-user').value;
+        const p = document.getElementById('cred-pw').value;
+        navigator.clipboard.writeText('Usuario: ' + u + '\nContraseña: ' + p + '\nPortal: /estudiante/login/')
+            .then(function() { showToast('📋 Credenciales copiadas al portapapeles'); });
+    });
+
+    // ─── Close modals ──────────────────────────────────────────────────────
+    document.querySelectorAll('.close-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() { closeMo(); });
+    });
+    document.querySelectorAll('.mo').forEach(function(m) {
+        m.addEventListener('click', function(e) { if(e.target===m) closeMo(); });
+    });
+
+    // ─── Utility functions ─────────────────────────────────────────────────
+    function closeMo() { document.querySelectorAll('.mo').forEach(function(m) { m.classList.remove('open'); }); curId=null; }
+
+    function showToast(msg,type){
+        if (!type) type='ok';
+        const t=document.getElementById('toast');
+        t.textContent=msg;
+        t.className='toast ' + type + ' show';
+        setTimeout(function() { t.className='toast'; }, 3000);
+    }
+
+    // ─── Search ────────────────────────────────────────────────────────────
+    document.getElementById('srch').addEventListener('input',function(){
+        const q=this.value.toLowerCase();
+        document.querySelectorAll('#stb tr[data-id]').forEach(function(r){
+            r.style.display=(r.getAttribute('data-name').toLowerCase().indexOf(q)!==-1||r.getAttribute('data-email').toLowerCase().indexOf(q)!==-1)?'':'none';
+        });
+    });
+});
+</script>
+</body>
+</html>

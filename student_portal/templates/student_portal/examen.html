@@ -1,0 +1,41 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ exam.title }} – LearnHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="{% static 'enrollment/css/style.css' %}">
+<link rel="stylesheet" href="{% static 'student_portal/css/portal.css' %}">
+</head>
+<body>
+<a href="{% url 'student_course_detail' exam.course.pk %}?tab=examen" class="back">← Volver al curso</a>
+<h1 class="exe-h1">📝 <span>{{ exam.title }}</span></h1>
+<p class="exe-p">{{ exam.course.title }} · {{ exam.questions.count }} preguntas · Nota mínima: {{ exam.passing_score }}%</p>
+
+{% if previous %}
+<div class="warn-box">
+  ⚠️ Ya tienes un intento anterior: {{ previous.score }}/{{ previous.total }} ({{ previous.passed|yesno:"✅ Aprobado,❌ No aprobado" }}).
+  Puedes volver a intentarlo.
+</div>
+{% endif %}
+
+<form method="POST">
+  {% csrf_token %}
+  {% for q in questions %}
+  <div class="qcard">
+    <div class="qnum">Pregunta {{ forloop.counter }} de {{ questions|length }}</div>
+    <div class="qtext">{{ q.text }}</div>
+    {% for opt in q.options.all %}
+    <label class="opt">
+      <input type="radio" name="q_{{ q.pk }}" value="{{ opt.pk }}" required>
+      <span>{{ opt.text }}</span>
+    </label>
+    {% endfor %}
+  </div>
+  {% endfor %}
+  <button type="submit" class="exe-btn exe-btn-primary">📤 Enviar respuestas</button>
+</form>
+</body>
+</html>

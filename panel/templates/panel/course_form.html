@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% if course %}Editar{% else %}Nuevo{% endif %} Curso – LearnHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="{% static 'panel/css/course_form.css' %}">
+</head>
+<body>
+<div class="card">
+  <h1>{% if course %}✏️ Editar <span>Curso</span>{% else %}📚 Nuevo <span>Curso</span>{% endif %}</h1>
+  <p>{% if course %}Actualiza los datos del curso{% else %}Completa los datos para crear un nuevo curso{% endif %}</p>
+  {% if messages %}{% for m in messages %}<div class="msg {{ m.tags }}">{{ m }}</div>{% endfor %}{% endif %}
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="mf"><label>Título</label><input type="text" name="title" value="{{ course.title|default:'' }}" required placeholder="Ej: Python avanzado"></div>
+    <div class="mf"><label>Descripción</label><textarea name="description">{{ course.description|default:'' }}</textarea></div>
+    <div class="mf"><label>Icono (emoji)</label><input type="text" name="icon" value="{{ course.icon|default:'📚' }}" placeholder="📚"></div>
+    <div class="mf"><label>Imagen del curso</label><input type="file" name="image" accept="image/*">{% if course.image %}<br><small style="color:var(--mu)">Actual: <a href="{{ course.image.url }}" target="_blank" style="color:var(--ac)">{{ course.image.url }}</a></small>{% endif %}</div>
+    <div class="mf"><label>Duración</label><input type="text" name="duration" value="{{ course.duration|default:'16 semanas' }}" placeholder="Ej: 12 semanas"></div>
+    <div class="mf">
+      <label>Nivel</label>
+      <select name="level">
+        <option value="principiante" {% if course.level == 'principiante' %}selected{% endif %}>Principiante</option>
+        <option value="intermedio" {% if course.level == 'intermedio' %}selected{% endif %}>Intermedio</option>
+        <option value="avanzado" {% if course.level == 'avanzado' %}selected{% endif %}>Avanzado</option>
+      </select>
+    </div>
+    <div class="mf"><label>Orden</label><input type="number" name="order" value="{{ course.order|default:'0' }}"></div>
+    <div class="mf"><label class="chk"><input type="checkbox" name="is_active" {% if course.is_active or not course %}checked{% endif %}> Curso activo</label></div>
+    <div class="ma">
+      <a href="{% url 'course_list' %}" class="btn btn-cancel">Cancelar</a>
+      <button type="submit" class="btn btn-primary">💾 Guardar</button>
+    </div>
+  </form>
+</div>
+</body>
+</html>

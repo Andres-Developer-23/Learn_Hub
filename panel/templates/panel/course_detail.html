@@ -1,0 +1,97 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ course.title }} – LearnHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="{% static 'panel/css/course_detail.css' %}">
+</head>
+<body>
+<a href="{% url 'course_list' %}" class="nav-link">← Volver a Cursos</a>
+<h1>{% if course.image %}<img src="{{ course.image.url }}" alt="{{ course.title }}" style="width:32px;height:32px;vertical-align:middle;border-radius:6px">{% else %}{{ course.icon }}{% endif %} <span>{{ course.title }}</span></h1>
+<div class="sub">
+  {{ course.description|truncatechars:200 }}
+  <br><span class="tag tag-explicacion">{{ course.get_level_display }}</span>
+  <span class="tag" style="background:rgba(255,255,255,0.05);color:var(--mu)">{{ course.duration }}</span>
+  {% if course.is_active %}<span class="tag" style="background:var(--ok-bg);color:var(--ok)">Activo</span>{% endif %}
+</div>
+
+{% if messages %}{% for m in messages %}<div class="msg {{ m.tags }}">{{ m }}</div>{% endfor %}{% endif %}
+
+<div style="display:flex;gap:.5rem;margin-bottom:2rem;flex-wrap:wrap">
+  <a href="{% url 'course_edit' course.pk %}" class="btn btn-warn">✏️ Editar curso</a>
+  <a href="{% url 'content_create' course.pk %}" class="btn btn-primary">+ Agregar contenido</a>
+  <a href="{% url 'exam_create' course.pk %}" class="btn btn-primary">+ Crear examen</a>
+</div>
+
+<!-- Content -->
+<div class="card">
+  <div class="ct">📖 Contenido del curso</div>
+  {% if contents %}
+    {% for cont in contents %}
+    <div class="item">
+      <div>
+        <span class="bx b-{{ cont.section_type }}">{{ cont.get_section_type_display }}</span>
+        <strong style="margin-left:.5rem">{{ cont.title }}</strong>
+        {% if cont.file %}<span style="color:var(--mu);font-size:.75rem;margin-left:.5rem">📎 tiene archivo</span>{% endif %}
+      </div>
+      <form method="POST" action="{% url 'content_delete' cont.pk %}" style="display:inline" onsubmit="return confirm('¿Eliminar este contenido?')">{% csrf_token %}<button type="submit" class="btn btn-sm btn-err">🗑️</button></form>
+    </div>
+    {% endfor %}
+  {% else %}
+  <p style="color:var(--mu);font-size:.85rem">Sin contenido aún.</p>
+  {% endif %}
+</div>
+
+<!-- Exams -->
+<div class="card">
+  <div class="ct">📝 Exámenes</div>
+  {% if exams %}
+    {% for e in exams %}
+    <div class="item">
+      <div>
+        <strong>{{ e.title }}</strong>
+        <span style="color:var(--mu);font-size:.78rem;margin-left:.5rem">Nota mínima: {{ e.passing_score }}% · {{ e.time_limit_minutes }}min</span>
+      </div>
+      <div style="display:flex;gap:.3rem">
+        <a href="{% url 'exam_edit' e.pk %}" class="btn btn-sm btn-warn">✏️</a>
+        <form method="POST" action="{% url 'exam_delete' e.pk %}" style="display:inline" onsubmit="return confirm('¿Eliminar este examen?')">{% csrf_token %}<button type="submit" class="btn btn-sm btn-err">🗑️</button></form>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+  <p style="color:var(--mu);font-size:.85rem">Sin exámenes aún.</p>
+  {% endif %}
+</div>
+
+<!-- Files -->
+<div class="card">
+  <div class="ct">📁 Archivos del curso</div>
+  <form method="POST" action="{% url 'file_upload' course.pk %}" enctype="multipart/form-data" style="display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap;align-items:end">
+    {% csrf_token %}
+    <div><label style="font-size:.72rem;color:var(--mu);display:block;margin-bottom:.2rem">Título</label><input type="text" name="title" required style="padding:.5rem .7rem;background:rgba(255,255,255,0.03);border:1px solid var(--br);border-radius:8px;color:var(--tx);font-size:.8rem"></div>
+    <div><label style="font-size:.72rem;color:var(--mu);display:block;margin-bottom:.2rem">Archivo</label><input type="file" name="file" required style="color:var(--mu);font-size:.8rem"></div>
+    <button type="submit" class="btn btn-primary" style="margin-bottom:.1rem">📤 Subir</button>
+  </form>
+  {% if files %}
+    {% for f in files %}
+    <div class="item">
+      <div>
+        <strong>{{ f.title }}</strong>
+        <span style="color:var(--mu);font-size:.75rem;margin-left:.5rem">{{ f.file.name|cut:"course_files/" }}</span>
+        <span style="color:var(--mu);font-size:.72rem;margin-left:.5rem">{{ f.uploaded_at|date:"d/m/Y" }}</span>
+      </div>
+      <div style="display:flex;gap:.3rem">
+        <a href="{{ f.file.url }}" class="btn btn-sm btn-ok" download>📥</a>
+        <form method="POST" action="{% url 'file_delete' f.pk %}" style="display:inline" onsubmit="return confirm('¿Eliminar {{ f.title }}?')">{% csrf_token %}<button type="submit" class="btn btn-sm btn-err">🗑️</button></form>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+  <p style="color:var(--mu);font-size:.85rem">Sin archivos subidos.</p>
+  {% endif %}
+</div>
+</body>
+</html>

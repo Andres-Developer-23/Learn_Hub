@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Editar Estudiante – LearnHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="{% static 'panel/css/student_edit.css' %}">
+</head>
+<body>
+<div class="card">
+    <h1>Editar <span>Estudiante</span></h1>
+    <p>Actualiza los datos de {{ student.name }}</p>
+
+    {% if messages %}
+    {% for m in messages %}<div class="msg {{ m.tags }}">{{ m }}</div>{% endfor %}
+    {% endif %}
+
+    <form method="POST" action="{% url 'student_edit' student.pk %}">
+        {% csrf_token %}
+        <div class="mf">
+            <label>Nombre completo</label>
+            <input type="text" name="name" value="{{ student.name }}" required>
+        </div>
+        <div class="mf">
+            <label>Correo electrónico</label>
+            <input type="email" name="email" value="{{ student.email }}" required>
+        </div>
+        <div class="mf">
+            <label>Nivel de experiencia</label>
+            <select name="level" required>
+                <option value="principiante" {% if student.level == 'principiante' %}selected{% endif %}>Principiante</option>
+                <option value="intermedio" {% if student.level == 'intermedio' %}selected{% endif %}>Intermedio</option>
+                <option value="avanzado" {% if student.level == 'avanzado' %}selected{% endif %}>Avanzado</option>
+            </select>
+        </div>
+        <div class="ma">
+            <a href="{% url 'admin_dashboard' %}#sec-students" class="btn btn-cancel">Cancelar</a>
+            <button type="submit" class="btn btn-primary">💾 Guardar cambios</button>
+        </div>
+    </form>
+</div>
+</body>
+</html>

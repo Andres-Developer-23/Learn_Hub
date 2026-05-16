@@ -1,0 +1,415 @@
+{% load static %}
+{% load course_tags %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mi Portal – LearnHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="{% static 'student_portal/css/portal.css' %}">
+</head>
+<body>
+
+<aside class="sb">
+  <div class="logo">Learn<span>Hub</span></div>
+  <div class="ns">Mi Portal</div>
+  <button class="ni active" onclick="show('home',this)"><span class="ic">🏠</span><span>Inicio</span></button>
+  <button class="ni" onclick="show('notifications',this)" style="position:relative">
+    <span class="ic">🔔</span><span>Notificaciones</span>
+    {% if unread_count %}<span style="position:absolute;right:0.6rem;top:50%;transform:translateY(-50%);background:var(--err);color:white;font-size:0.6rem;font-weight:700;padding:0.1rem 0.4rem;border-radius:999px;min-width:18px;text-align:center">{{ unread_count }}</span>{% endif %}
+  </button>
+  <button class="ni" onclick="show('courses',this)"><span class="ic">📚</span><span>Mi Curso</span></button>
+  <button class="ni" onclick="show('profile',this)"><span class="ic">👤</span><span>Mi Perfil</span></button>
+  <button class="ni" onclick="show('security',this)"><span class="ic">🔒</span><span>Seguridad</span></button>
+  <div class="ns">Recursos</div>
+  <a href="/" class="ni"><span class="ic">🌐</span><span>Sitio Web</span></a>
+  <div class="sf">
+    <div class="up">
+      <div class="av">{{ request.user.username|slice:":1"|upper }}</div>
+      <div class="ui"><strong style="font-size:.85rem">{{ student.name|truncatechars:18 }}</strong><small>Estudiante</small></div>
+    </div>
+    <a href="{% url 'student_logout' %}" class="lb"><span class="ic">🚪</span><span>Cerrar sesión</span></a>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="tb">
+    <h1 class="pt">Mi <span>Portal</span></h1>
+    <p class="psub">Bienvenido de vuelta, {{ student.name }}.</p>
+  </div>
+
+  <!-- HOME -->
+  <div class="sec active" id="sec-home">
+    <div class="banner">
+      <div class="banner-av">{{ request.user.username|slice:":1"|upper }}</div>
+      <div class="banner-info">
+        <h2>¡Hola, {{ student.name }}! 👋</h2>
+        <p>Tu inscripción al Curso de Inteligencia Artificial ha sido
+          <span class="badge b-{{ student.status }}">{{ student.get_status_display }}</span>.
+          Nivel: <span class="badge b-{{ student.level }}">{{ student.get_level_display }}</span>
+        </p>
+      </div>
+    </div>
+    <div class="ig">
+      <div class="ic2"><div class="il">Usuario</div><div class="iv">{{ request.user.username }}</div></div>
+      <div class="ic2"><div class="il">Correo</div><div class="iv" style="font-size:.85rem">{{ student.email }}</div></div>
+      <div class="ic2"><div class="il">Nivel</div><div class="iv"><span class="badge b-{{ student.level }}">{{ student.get_level_display }}</span></div></div>
+      <div class="ic2"><div class="il">Inscrito</div><div class="iv" style="font-size:.85rem">{{ student.created_at|date:"d/m/Y" }}</div></div>
+    </div>
+  </div>
+
+  <!-- NOTIFICATIONS -->
+  <div class="sec" id="sec-notifications" style="max-width:640px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+      <div class="section-label" style="margin:0;font-size:0.75rem">🔔 Notificaciones</div>
+      {% if notifications %}
+      <button class="sbtn" style="margin:0;padding:0.3rem 0.7rem;font-size:0.68rem" onclick="markAllRead()">✓ Marcar todas leídas</button>
+      {% endif %}
+    </div>
+    {% if notifications %}
+    <div style="display:flex;flex-direction:column;gap:0.4rem">
+      {% for n in notifications %}
+      <div class="pcard" style="padding:0.8rem 1rem;margin:0;cursor:pointer{% if not n.is_read %};border-color:rgba(79,142,247,0.25);background:linear-gradient(135deg,var(--card),rgba(79,142,247,0.04)){% endif %}" onclick="{% if not n.is_read %}markRead({{ n.id }}, this){% endif %}">
+        <div style="display:flex;align-items:flex-start;gap:0.6rem">
+          <div style="font-size:1.1rem;flex-shrink:0;margin-top:0.1rem">
+            {% if n.notif_type == 'success' %}✅
+            {% elif n.notif_type == 'error' %}❌
+            {% elif n.notif_type == 'warning' %}⚠️
+            {% else %}ℹ️{% endif %}
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem">
+              <strong style="font-size:0.82rem;color:var(--tx)">{{ n.title }}</strong>
+              <div style="display:flex;align-items:center;gap:0.3rem;flex-shrink:0">
+                {% if not n.is_read %}<span style="width:7px;height:7px;border-radius:50%;background:var(--acc);display:inline-block"></span>{% endif %}
+                <span style="font-size:0.65rem;color:var(--mu)">{{ n.created_at|timesince }}</span>
+              </div>
+            </div>
+            <p style="font-size:0.78rem;color:var(--mu);margin-top:0.15rem;line-height:1.4">{{ n.message }}</p>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align:center;padding:3rem 0;color:var(--mu)">
+      <div style="font-size:2rem;margin-bottom:0.5rem">🔔</div>
+      <p style="font-size:0.85rem">No tienes notificaciones.</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- COURSES -->
+  <div class="sec" id="sec-courses">
+    <div class="section-label">📖 Mis Cursos Inscritos</div>
+    {% if enrolled_courses %}
+    <div class="modules" style="margin-bottom:2.5rem">
+      {% for course in enrolled_courses %}
+      <a href="{% url 'student_course_detail' course.pk %}" style="text-decoration:none;color:inherit">
+        <div class="mod enrolled">
+          <div class="mod-icon">{% course_icon_small course %}</div>
+          <h3>{{ course.title }}</h3>
+          <p>{{ course.description }}</p>
+          <span class="mod-tag" style="background:rgba(34,197,94,0.1);color:#4ade80">{{ course.duration }}</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p style="color:var(--mu);margin-bottom:2.5rem;font-size:.88rem">Aún no tienes cursos inscritos. Explora los disponibles abajo.</p>
+    {% endif %}
+
+    <div class="section-label">📚 Todos los Cursos Disponibles</div>
+    <div class="modules">
+      {% for course in all_courses %}
+      <div class="mod {% if course in enrolled_courses %}enrolled{% endif %}">
+        <a href="{% url 'student_course_detail' course.pk %}" style="text-decoration:none;color:inherit">
+          <div class="mod-icon">{% course_icon_small course %}</div>
+          <h3>{{ course.title }}</h3>
+          <p>{{ course.description }}</p>
+        </a>
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.5rem;flex-wrap:wrap;">
+          <span class="mod-tag">{{ course.duration }}</span>
+          {% if course in enrolled_courses %}
+          <span style="background:var(--ok-bg);color:var(--ok);padding:0.2rem 0.65rem;border-radius:999px;font-size:.7rem;font-weight:700">✓ Inscrito</span>
+          {% else %}
+          <button class="sbtn" style="margin:0;padding:.4rem .85rem;font-size:.72rem;border:none;cursor:pointer" onclick="showEnrollModal({{ course.id }}, '{{ course.title|escapejs }}', '{{ course.icon|escapejs }}')">Inscribirse</button>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- PROFILE -->
+  <div class="sec" id="sec-profile">
+    <div style="max-width:640px">
+      <div style="display:flex;align-items:center;gap:1.5rem;margin-bottom:2rem;background:var(--card);border:1px solid var(--br);border-radius:18px;padding:1.75rem">
+        <div style="position:relative;flex-shrink:0">
+          <label for="pf-picture" style="display:block;cursor:pointer;position:relative">
+            <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--acc),#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:800;overflow:hidden;border:3px solid var(--br);transition:all 0.3s;box-shadow:0 8px 24px rgba(0,0,0,0.3)">
+              {% if student.profile_picture %}
+              <img src="{{ student.profile_picture.url }}" style="width:100%;height:100%;object-fit:cover" id="avatar-img">
+              {% else %}
+              <span id="avatar-initial">{{ student.name|first|upper }}</span>
+              {% endif %}
+            </div>
+            <div style="position:absolute;bottom:0;right:-2px;width:28px;height:28px;border-radius:50%;background:var(--acc);border:2px solid var(--card);display:flex;align-items:center;justify-content:center;color:white;font-size:0.65rem;box-shadow:0 2px 8px rgba(0,0,0,0.3)">
+              <i class="fas fa-camera"></i>
+            </div>
+          </label>
+          <input type="file" id="pf-picture" accept="image/*" onchange="previewAvatar(this)" style="display:none">
+        </div>
+        <div>
+          <h3 style="font-size:1.05rem;font-weight:700;margin-bottom:0.2rem">{{ student.name }}</h3>
+          <p style="color:var(--mu);font-size:0.8rem;display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap">
+            <span class="badge b-{{ student.status }}">{{ student.get_status_display }}</span>
+            <span class="badge b-{{ student.level }}">{{ student.get_level_display }}</span>
+            <span style="color:var(--mu)">{{ student.email }}</span>
+          </p>
+        </div>
+      </div>
+
+      <div style="background:var(--card);border:1px solid var(--br);border-radius:18px;padding:1.75rem;margin-bottom:1rem">
+        <h3 style="font-size:0.85rem;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:1.25rem"><i class="fas fa-pen" style="color:var(--acc);margin-right:0.4rem"></i> Información editable</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div class="field" style="margin:0">
+            <label><i class="fas fa-user" style="color:var(--acc);margin-right:0.3rem"></i> Nombre completo</label>
+            <input type="text" id="pf-name" value="{{ student.name }}" placeholder="Tu nombre">
+          </div>
+          <div class="field" style="margin:0">
+            <label><i class="fas fa-phone" style="color:var(--acc);margin-right:0.3rem"></i> Teléfono</label>
+            <input type="text" id="pf-phone" value="{{ student.phone|default:'' }}" placeholder="Ej: +51 987 654 321">
+          </div>
+          <div class="field" style="margin:0;grid-column:1/-1">
+            <label><i class="fas fa-map-marker-alt" style="color:var(--acc);margin-right:0.3rem"></i> Dirección</label>
+            <input type="text" id="pf-address" value="{{ student.address|default:'' }}" placeholder="Tu dirección">
+          </div>
+        </div>
+        <button class="sbtn" onclick="saveProfile()" style="margin-top:1.25rem;width:100%;justify-content:center"><i class="fas fa-save"></i> Guardar Cambios</button>
+      </div>
+
+      <div style="background:var(--card);border:1px solid var(--br);border-radius:18px;padding:1.75rem">
+        <h3 style="font-size:0.85rem;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:1rem"><i class="fas fa-lock" style="color:var(--acc);margin-right:0.4rem"></i> Información de cuenta</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem">
+          <div style="background:var(--bg-elevated);padding:0.7rem 1rem;border-radius:10px;border:1px solid var(--br)">
+            <div style="font-size:0.65rem;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.2rem">Usuario</div>
+            <div style="font-size:0.88rem;font-weight:600;color:var(--tx)">@{{ request.user.username }}</div>
+          </div>
+          <div style="background:var(--bg-elevated);padding:0.7rem 1rem;border-radius:10px;border:1px solid var(--br)">
+            <div style="font-size:0.65rem;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.2rem">Correo</div>
+            <div style="font-size:0.88rem;font-weight:600;color:var(--tx)">{{ student.email }}</div>
+          </div>
+          <div style="background:var(--bg-elevated);padding:0.7rem 1rem;border-radius:10px;border:1px solid var(--br)">
+            <div style="font-size:0.65rem;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.2rem">Nivel</div>
+            <div style="font-size:0.88rem"><span class="badge b-{{ student.level }}">{{ student.get_level_display }}</span></div>
+          </div>
+          <div style="background:var(--bg-elevated);padding:0.7rem 1rem;border-radius:10px;border:1px solid var(--br)">
+            <div style="font-size:0.65rem;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.2rem">Estado</div>
+            <div style="font-size:0.88rem"><span class="badge b-{{ student.status }}">{{ student.get_status_display }}</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECURITY -->
+  <div class="sec" id="sec-security">
+    <div class="pcard">
+      <div class="pc-title">🔒 Cambiar Contraseña</div>
+      <div class="field"><label>Contraseña actual</label><input type="password" id="pw-cur" placeholder="••••••••"></div>
+      <div class="field"><label>Nueva contraseña</label><input type="password" id="pw-new" placeholder="Mínimo 6 caracteres"></div>
+      <div class="field"><label>Confirmar nueva contraseña</label><input type="password" id="pw-conf" placeholder="Repite la contraseña"></div>
+      <button class="sbtn" onclick="changePw()">🔑 Actualizar Contraseña</button>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<!-- Enrollment Modal -->
+<div id="enroll-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);align-items:center;justify-content:center">
+  <div style="background:var(--card);border:1px solid var(--br);border-radius:18px;padding:2rem;max-width:420px;width:90%;position:relative;box-shadow:0 25px 80px rgba(0,0,0,0.5)">
+    <button onclick="closeEnrollModal()" style="position:absolute;top:1rem;right:1rem;background:rgba(255,255,255,0.04);border:1px solid var(--br);color:var(--mu);width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center">&times;</button>
+    <div style="font-size:2.5rem;text-align:center;margin-bottom:0.5rem" id="modal-icon">📚</div>
+    <h2 style="font-size:1.2rem;font-weight:800;text-align:center;margin-bottom:0.4rem" id="modal-title">Curso</h2>
+    <p style="color:var(--mu);font-size:0.85rem;text-align:center;margin-bottom:1.5rem">¿Deseas solicitar inscripción a este curso?</p>
+    <p style="color:var(--mu);font-size:0.78rem;text-align:center;margin-bottom:1.5rem;line-height:1.5;background:rgba(245,158,11,0.08);padding:0.7rem;border-radius:8px;border:1px solid rgba(245,158,11,0.12)">
+      <i class="fas fa-clock" style="color:var(--warn)"></i> Tu solicitud será revisada por un administrador. Recibirás una notificación cuando sea aprobada.
+    </p>
+    <div style="display:flex;gap:0.6rem">
+      <button onclick="closeEnrollModal()" style="flex:1;padding:0.65rem;border-radius:10px;border:1px solid var(--br);background:transparent;color:var(--mu);font-size:0.82rem;font-weight:600;cursor:pointer">Cancelar</button>
+      <button id="modal-confirm-btn" onclick="confirmEnroll()" style="flex:1;padding:0.65rem;border-radius:10px;border:none;background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;font-size:0.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.4rem">
+        <i class="fas fa-paper-plane"></i> Solicitar
+      </button>
+    </div>
+    <div id="modal-msg" style="margin-top:0.8rem;display:none;padding:0.55rem;border-radius:8px;text-align:center;font-size:0.78rem;font-weight:600"></div>
+  </div>
+</div>
+
+<script>
+const CSRF='{{ csrf_token }}';
+var pendingCourseId = null;
+
+function showEnrollModal(courseId, courseTitle, courseIcon) {
+    pendingCourseId = courseId;
+    document.getElementById('modal-icon').textContent = courseIcon || '📚';
+    document.getElementById('modal-title').textContent = courseTitle;
+    document.getElementById('modal-msg').style.display = 'none';
+    document.getElementById('modal-confirm-btn').disabled = false;
+    document.getElementById('modal-confirm-btn').innerHTML = '<i class="fas fa-paper-plane"></i> Solicitar';
+    document.getElementById('enroll-modal').style.display = 'flex';
+}
+
+function closeEnrollModal() {
+    document.getElementById('enroll-modal').style.display = 'none';
+    pendingCourseId = null;
+}
+
+function confirmEnroll() {
+    if (!pendingCourseId) return;
+    var btn = document.getElementById('modal-confirm-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+    fetch("{% url 'student_enroll_course' %}", {
+        method: 'POST',
+        headers: {'Content-Type':'application/json','X-CSRFToken':CSRF},
+        body: JSON.stringify({course_id: pendingCourseId})
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+        var msg = document.getElementById('modal-msg');
+        msg.style.display = 'block';
+        if (d.status === 'success' || d.status === 'info') {
+            msg.style.background = 'rgba(34,197,94,0.1)';
+            msg.style.color = 'var(--ok)';
+            msg.style.border = '1px solid rgba(34,197,94,0.15)';
+            msg.innerHTML = '<i class="fas fa-check-circle"></i> ' + d.message;
+            btn.innerHTML = '<i class="fas fa-check"></i> Enviado';
+            setTimeout(function() { closeEnrollModal(); location.reload(); }, 2000);
+        } else {
+            msg.style.background = 'rgba(244,63,94,0.1)';
+            msg.style.color = 'var(--err)';
+            msg.style.border = '1px solid rgba(244,63,94,0.15)';
+            msg.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + (d.message || 'Error');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-paper-plane"></i> Solicitar';
+        }
+    })
+    .catch(function() {
+        var msg = document.getElementById('modal-msg');
+        msg.style.display = 'block';
+        msg.style.background = 'rgba(244,63,94,0.1)';
+        msg.style.color = 'var(--err)';
+        msg.style.border = '1px solid rgba(244,63,94,0.15)';
+        msg.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error de conexión. Intenta de nuevo.';
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Solicitar';
+    });
+}
+
+function show(name, el) {
+    document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
+    document.getElementById('sec-'+name).classList.add('active');
+    document.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
+    if (el) el.classList.add('active');
+}
+
+function showToast(msg, type='ok') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `toast ${type} show`;
+    setTimeout(() => t.className = 'toast', 3200);
+}
+
+function previewAvatar(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = document.getElementById('avatar-img');
+            const initial = document.getElementById('avatar-initial');
+            if (img) img.src = e.target.result;
+            if (initial) initial.style.display = 'none';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function saveProfile() {
+    const name = document.getElementById('pf-name').value.trim();
+    const phone = document.getElementById('pf-phone').value.trim();
+    const address = document.getElementById('pf-address').value.trim();
+    const pictureFile = document.getElementById('pf-picture').files[0];
+    if (!name) return showToast('El nombre no puede estar vacío.', 'er');
+    const fd = new FormData();
+    fd.append('name', name);
+    fd.append('phone', phone);
+    fd.append('address', address);
+    if (pictureFile) fd.append('profile_picture', pictureFile);
+    fetch("{% url 'student_update_profile' %}", {method:'POST', headers:{'X-CSRFToken':CSRF}, body:fd})
+    .then(r => r.json()).then(d => {
+        if (d.status === 'success') {
+            showToast('✅ Perfil actualizado');
+            document.getElementById('pf-picture').value = '';
+        } else showToast(d.message || 'Error', 'er');
+    });
+}
+
+function enrollCourse(courseId) {
+    fetch("{% url 'student_enroll_course' %}", {method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken':CSRF}, body:JSON.stringify({course_id:courseId})})
+    .then(r => r.json()).then(d => {
+        if (d.status === 'success') {
+            showToast('✅ Te has inscrito al curso');
+            setTimeout(() => location.reload(), 1000);
+        } else showToast(d.message || 'Error', 'er');
+    });
+}
+
+function markRead(id, el) {
+    fetch("{% url 'student_mark_read' 0 %}".replace('/0/', '/' + id + '/'), {method:'POST', headers:{'X-CSRFToken':CSRF}})
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+        if (d.status === 'success') {
+            el.style.borderColor = 'var(--br)';
+            el.style.background = 'var(--card)';
+            var dot = el.querySelector('span[style*="border-radius:50%"]');
+            if (dot) dot.remove();
+            var badge = document.querySelector('.ni .ic + span + span');
+            if (badge) {
+                var c = parseInt(badge.textContent) - 1;
+                if (c <= 0) badge.remove();
+                else badge.textContent = c;
+            }
+        }
+    });
+}
+
+function markAllRead() {
+    fetch("{% url 'student_mark_all_read' %}", {method:'POST', headers:{'X-CSRFToken':CSRF}})
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+        if (d.status === 'success') location.reload();
+    });
+}
+
+function changePw() {
+    const cur = document.getElementById('pw-cur').value;
+    const nw = document.getElementById('pw-new').value;
+    const cf = document.getElementById('pw-conf').value;
+    if (!cur || !nw || !cf) return showToast('Completa todos los campos.', 'er');
+    if (nw !== cf) return showToast('Las contraseñas no coinciden.', 'er');
+    if (nw.length < 6) return showToast('La nueva contraseña debe tener al menos 6 caracteres.', 'er');
+    fetch("{% url 'student_change_password' %}", {method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken':CSRF}, body:JSON.stringify({current_password:cur, new_password:nw, confirm_password:cf})})
+    .then(r => r.json()).then(d => {
+        if (d.status === 'success') {
+            showToast('✅ Contraseña actualizada');
+            document.getElementById('pw-cur').value = '';
+            document.getElementById('pw-new').value = '';
+            document.getElementById('pw-conf').value = '';
+        } else showToast(d.message || 'Error al cambiar contraseña.', 'er');
+    });
+}
+</script>
+</body>
+</html>

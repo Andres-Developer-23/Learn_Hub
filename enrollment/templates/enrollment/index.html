@@ -1,0 +1,406 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnHub - Aprende sin límites</title>
+    {% load static %}
+{% load course_tags %}
+    <link rel="stylesheet" href="{% static 'enrollment/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'enrollment/css/animations.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <i class="fas fa-graduation-cap"></i> Learn<span>Hub</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#inicio">Inicio</a></li>
+                <li><a href="#cursos">Cursos</a></li>
+                <li><a href="#categorias">Categorías</a></li>
+                <li><a href="#beneficios">Beneficios</a></li>
+                <li><a href="#testimonios">Testimonios</a></li>
+            </ul>
+            <div class="nav-buttons">
+                <a href="{% url 'student_login' %}" class="login-btn">Iniciar Sesión</a>
+                <button class="register-btn" onclick="scrollToSection('inscripcion')">
+                    <i class="fas fa-user-plus"></i> Regístrate gratis
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="inicio" class="hero">
+            <!-- Animated background elements -->
+            <div class="hero-bg-animation">
+                <div class="hero-grid"></div>
+                <div class="hero-glow hero-glow-1"></div>
+                <div class="hero-glow hero-glow-2"></div>
+                <div class="hero-glow hero-glow-3"></div>
+            </div>
+            <div class="hero-orb orb-1"></div>
+            <div class="hero-orb orb-2"></div>
+            <div class="hero-content reveal">
+                <span class="badge-new">✨ Nueva plataforma de aprendizaje</span>
+                <h1>Domina las habilidades <span class="highlight gradient-text" style="background: linear-gradient(90deg, #60a5fa, #a78bfa, #2dd4bf, #60a5fa); background-size: 300% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradient-flow 4s linear infinite;">del futuro</span></h1>
+                <p>Accede a más de 100+ cursos impartidos por expertos de la industria. Aprende a tu ritmo y certifícate en las tecnologías más demandadas.</p>
+                <div class="hero-buttons">
+                    <button class="cta-primary" onclick="scrollToSection('cursos')">
+                        <i class="fas fa-play"></i> Explorar Cursos
+                    </button>
+                    <button class="cta-secondary" onclick="scrollToSection('categorias')">
+                        <i class="fas fa-play-circle"></i> Ver Categorías
+                    </button>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-number">50K+</span>
+                        <span class="stat-label">Estudiantes</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">100+</span>
+                        <span class="stat-label">Cursos</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">4.9</span>
+                        <span class="stat-label">Valoración</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="floating-card card-1">
+                    <i class="fab fa-python"></i>
+                    <span>Python</span>
+                </div>
+                <div class="floating-card card-2">
+                    <i class="fab fa-js"></i>
+                    <span>JavaScript</span>
+                </div>
+                <div class="floating-card card-3">
+                    <i class="fas fa-brain"></i>
+                    <span>AI/ML</span>
+                </div>
+                <div class="floating-card card-4">
+                    <i class="fas fa-database"></i>
+                    <span>Data</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="categorias" class="categories-section">
+            <div class="section-header">
+                <h2>Explora por categoría</h2>
+                <p>Encuentra el curso perfecto según tu interés</p>
+            </div>
+            <div class="categories-grid">
+                <div class="category-card">
+                    <div class="category-icon" style="background: linear-gradient(135deg, #60a5fa, #3b82f6);">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3>Desarrollo Web</h3>
+                    <p>25 cursos</p>
+                </div>
+                <div class="category-card">
+                    <div class="category-icon" style="background: linear-gradient(135deg, #34d399, #10b981);">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>Inteligencia Artificial</h3>
+                    <p>18 cursos</p>
+                </div>
+                <div class="category-card">
+                    <div class="category-icon" style="background: linear-gradient(135deg, #a78bfa, #7c3aed);">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <h3>Ciencia de Datos</h3>
+                    <p>22 cursos</p>
+                </div>
+                <div class="category-card">
+                    <div class="category-icon" style="background: linear-gradient(135deg, #fbbf24, #f59e0b);">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>Desarrollo Móvil</h3>
+                    <p>15 cursos</p>
+                </div>
+                <div class="category-card">
+                    <div class="category-icon" style="background: linear-gradient(135deg, #f472b6, #ec4899);">
+                        <i class="fas fa-palette"></i>
+                    </div>
+                    <h3>Diseño UX/UI</h3>
+                    <p>12 cursos</p>
+                </div>
+                <div class="category-card">
+                    <div class="category-icon" style="background: linear-gradient(135deg, #22d3ee, #06b6d4);">
+                        <i class="fas fa-cloud"></i>
+                    </div>
+                    <h3>Cloud & DevOps</h3>
+                    <p>20 cursos</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="cursos" class="courses-section">
+            <div class="section-header">
+                <h2>Cursos destacados</h2>
+                <p>Los cursos más populares de nuestra plataforma</p>
+            </div>
+            <div class="courses-grid">
+                {% for course in featured_courses %}
+                <div class="course-card">
+                    <div class="course-image" style="overflow:hidden">
+                        {% course_icon course 150 12 %}
+                        <span class="course-badge">Destacado</span>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-meta">
+                            <span><i class="fas fa-clock"></i> {{ course.duration }}</span>
+                            <span><i class="fas fa-signal"></i> {{ course.level|default:"Intermedio" }}</span>
+                        </div>
+                        <h3>{{ course.title }}</h3>
+                        <p>{{ course.description|truncatechars:100 }}</p>
+                        <div class="course-footer">
+                            <a href="{% url 'enrollment_course_detail' course.id %}" class="enroll-btn">Ver curso</a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="course-card">
+                    <div class="course-image">
+                        <span class="course-icon">🤖</span>
+                        <span class="course-badge">Nuevo</span>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-meta">
+                            <span><i class="fas fa-clock"></i> 12 semanas</span>
+                            <span><i class="fas fa-signal"></i> Principiante</span>
+                        </div>
+                        <h3>Introducción a la IA</h3>
+                        <p>Aprende los fundamentos de la Inteligencia Artificial desde cero.</p>
+                        <div class="course-footer">
+                            <a href="{% url 'index' %}#cursos" class="enroll-btn">Ver curso</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="course-card">
+                    <div class="course-image">
+                        <span class="course-icon">🐍</span>
+                        <span class="course-badge">Popular</span>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-meta">
+                            <span><i class="fas fa-clock"></i> 16 semanas</span>
+                            <span><i class="fas fa-signal"></i> Intermedio</span>
+                        </div>
+                        <h3>Python para Data Science</h3>
+                        <p>Domina Python y sus librerías para análisis de datos.</p>
+                        <div class="course-footer">
+                            <a href="{% url 'index' %}#cursos" class="enroll-btn">Ver curso</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="course-card">
+                    <div class="course-image">
+                        <span class="course-icon">🌐</span>
+                        <span class="course-badge">Nuevo</span>
+                    </div>
+                    <div class="course-content">
+                        <div class="course-meta">
+                            <span><i class="fas fa-clock"></i> 10 semanas</span>
+                            <span><i class="fas fa-signal"></i> Principiante</span>
+                        </div>
+                        <h3>Desarrollo Web Completo</h3>
+                        <p>Desde HTML hasta React - Construye aplicaciones web completas.</p>
+                        <div class="course-footer">
+                            <a href="{% url 'index' %}#cursos" class="enroll-btn">Ver curso</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="view-all-container">
+                <button class="view-all-btn" onclick="showEnrollmentForm()">Ver todos los cursos <i class="fas fa-arrow-right"></i></button>
+            </div>
+        </section>
+
+        <section id="beneficios" class="benefits-section">
+            <div class="section-header">
+                <h2>¿Por qué elegir LearnHub?</h2>
+                <p>Te damos las herramientas para alcanzar tu máximo potencial</p>
+            </div>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-infinity"></i>
+                    </div>
+                    <h3>Aprendizaje Ilimitado</h3>
+                    <p>Accede a todos los cursos con una sola suscripción. Sin límites, aprende lo que quieras cuando quieras.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-certificate"></i>
+                    </div>
+                    <h3>Certificados Reconocidos</h3>
+                    <p>Obtén certificados valorados por las mejores empresas del sector tecnológico.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Comunidad Activa</h3>
+                    <p>Únete a nuestra comunidad de +50,000 estudiantes y conecta con profesionales.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                    <h3>Proyectos Reales</h3>
+                    <p>Aprende haciendo con proyectos prácticos que reforzarán tu portafolio.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <h3>Instructores Expertos</h3>
+                    <p>Aprende de profesionales con años de experiencia en las mejores empresas tech.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>Aprende en Cualquier Lugar</h3>
+                    <p>Accede desde tu computadora, tablet o móvil. Tu progreso se sincroniza everywhere.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="testimonios" class="testimonials-section">
+            <div class="section-header">
+                <h2>Lo que dicen nuestros estudiantes</h2>
+                <p>Miles de personas ya transformaron su carrera con nosotros</p>
+            </div>
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-header">
+                        <div class="avatar" style="background: linear-gradient(135deg, #818cf8, #8b5cf6);">M</div>
+                        <div>
+                            <h4>María González</h4>
+                            <span>Desarrolladora Frontend</span>
+                        </div>
+                    </div>
+                    <p>"En 6 meses pasé de no saber nada de código a conseguir mi primer empleo como desarrolladora. Los cursos son increibles!"</p>
+                    <div class="rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-header">
+                        <div class="avatar" style="background: linear-gradient(135deg, #e879f9, #fb7185);">J</div>
+                        <div>
+                            <h4>Juan Martínez</h4>
+                            <span>Data Scientist</span>
+                        </div>
+                    </div>
+                    <p>"El curso de Python para Data Science me cambió la vida. Ahora trabajo en lo que siempre soñé."</p>
+                    <div class="rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-header">
+                        <div class="avatar" style="background: linear-gradient(135deg, #60a5fa, #2dd4bf);">A</div>
+                        <div>
+                            <h4>Ana López</h4>
+                            <span>UX Designer</span>
+                        </div>
+                    </div>
+                    <p>"La metodología práctica es perfecta. Cada proyecto que hice quedó en mi portafolio real."</p>
+                    <div class="rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="inscripcion" class="cta-section">
+            <div class="cta-content">
+                <h2>¡Empieza tu viaje hoy!</h2>
+                <p>Únete a +50,000 estudiantes que ya están transformando su carrera</p>
+                <div class="cta-features">
+                    <span><i class="fas fa-check-circle"></i> 7 días gratis</span>
+                    <span><i class="fas fa-check-circle"></i> Sin tarjeta requerida</span>
+                    <span><i class="fas fa-check-circle"></i> Cancela cuando quieras</span>
+                </div>
+                <button class="cta-final-btn" id="btn-open-modal" type="button" onclick="showEnrollmentForm()">Comenzar mi prueba gratis</button>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-brand">
+                <div class="logo">
+                    <i class="fas fa-graduation-cap"></i> Learn<span>Hub</span>
+                </div>
+                <p>La plataforma de aprendizaje que transforma carreras. Aprende las habilidades del futuro hoy.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+            <div class="footer-links">
+                <div class="footer-column">
+                    <h4>Platform</h4>
+                    <a href="#">Cursos</a>
+                    <a href="#">Precios</a>
+                    <a href="#">Para empresas</a>
+                    <a href="#">Para universidades</a>
+                </div>
+                <div class="footer-column">
+                    <h4>Empresa</h4>
+                    <a href="#">Sobre nosotros</a>
+                    <a href="#">Carreras</a>
+                    <a href="#">Blog</a>
+                    <a href="#">Prensa</a>
+                </div>
+                <div class="footer-column">
+                    <h4>Soporte</h4>
+                    <a href="#">Centro de ayuda</a>
+                    <a href="#">Contacto</a>
+                    <a href="#">Términos</a>
+                    <a href="#">Privacidad</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 LearnHub. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Matrix Rain Background -->
+    <canvas id="canvas" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;pointer-events:none;background:#030712;"></canvas>
+
+    <!-- Enrollment Modal -->
+    <div id="enrollment-modal"></div>
+
+    <script src="{% static 'enrollment/js/script.js' %}"></script>
+    <script src="{% static 'enrollment/js/matrix.js' %}"></script>
+</body>
+</html>

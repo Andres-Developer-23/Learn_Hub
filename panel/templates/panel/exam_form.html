@@ -1,0 +1,69 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% if exam %}Editar{% else %}Nuevo{% endif %} Examen – {{ course.title }}</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="{% static 'panel/css/exam_form.css' %}">
+</head>
+<body>
+<div class="card">
+  <h1>📝 {% if exam %}Editar <span>Examen</span>{% else %}Nuevo <span>Examen</span>{% endif %}</h1>
+  <p>Curso: {{ course.title }}</p>
+  <form method="POST" id="exam-form">
+    {% csrf_token %}
+    <div class="mf"><label>Título del examen</label><input type="text" name="title" value="{{ exam.title|default:'' }}" required placeholder="Ej: Examen Módulo 1"></div>
+    <div class="mf"><label>Descripción</label><textarea name="description">{{ exam.description|default:'' }}</textarea></div>
+    <div style="display:flex;gap:1rem;flex-wrap:wrap">
+      <div class="mf" style="flex:1"><label>Nota mínima (%)</label><input type="number" name="passing_score" value="{{ exam.passing_score|default:'70' }}"></div>
+      <div class="mf" style="flex:1"><label>Tiempo límite (min)</label><input type="number" name="time_limit_minutes" value="{{ exam.time_limit_minutes|default:'30' }}"></div>
+    </div>
+    <hr style="border-color:var(--br);margin:1rem 0">
+    <h3 style="font-size:.9rem;margin-bottom:1rem">❓ Preguntas <button type="button" class="btn btn-sm btn-ok" onclick="addQuestion()" style="font-size:.75rem;padding:.3rem .7rem;margin-left:.5rem">+ Agregar</button></h3>
+    <div id="questions-container">
+      {% if exam %}
+        {% for q in exam.questions.all %}
+        <div class="qbox" data-q="{{ forloop.counter0 }}">
+          <input type="hidden" name="question_id_{{ forloop.counter0 }}" value="{{ q.pk }}">
+          <h4>Pregunta {{ forloop.counter }}</h4>
+          <div class="mf"><textarea name="question_text[]" rows="2" required>{{ q.text }}</textarea></div>
+          <div style="font-size:.72rem;color:var(--mu);margin-bottom:.4rem">Opciones (marca la correcta):</div>
+          {% for opt in q.options.all %}
+          <div class="opt-row">
+            <span class="opt-label">{{ opt.order|add:1 }}.</span>
+            <input type="text" name="option_{{ forloop.parentloop.counter0 }}_{{ opt.order }}" value="{{ opt.text }}" placeholder="Opción {{ opt.order|add:1 }}">
+            <input type="radio" name="correct_{{ forloop.parentloop.counter0 }}" value="{{ opt.order }}" {% if opt.is_correct %}checked{% endif %}>
+          </div>
+          {% endfor %}
+          <button type="button" class="btn btn-sm btn-err" onclick="this.closest('.qbox').remove()" style="margin-top:.5rem;font-size:.7rem;padding:.25rem .6rem">🗑️ Quitar</button>
+        </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+    <div class="ma">
+      <a href="{% url 'course_detail' course.pk %}" class="btn btn-cancel">Cancelar</a>
+      <button type="submit" class="btn btn-primary">💾 Guardar Examen</button>
+    </div>
+  </form>
+</div>
+<script src="{% static 'panel/js/exam_form.js' %}"></script>
+<script>
+var qCount = {% if exam %}{{ exam.questions.all|length }}{% else %}0{% endif %};
+function addQuestion() {
+    var container = document.getElementById('questions-container');
+    var idx = qCount++;
+    var div = document.createElement('div');
+    div.className = 'qbox';
+    div.setAttribute('data-q', idx);
+    var opts = '';
+    for (var o = 0; o < 4; o++) {
+        opts += '<div class="opt-row"><span class="opt-label">' + (o+1) + '.</span><input type="text" name="option_' + idx + '_' + o + '" placeholder="Opción ' + (o+1) + '"><input type="radio" name="correct_' + idx + '" value="' + o + '"></div>';
+    }
+    div.innerHTML = '<h4>Pregunta ' + (idx+1) + '</h4><div class="mf"><textarea name="question_text[]" rows="2" required></textarea></div><div style="font-size:.72rem;color:var(--mu);margin-bottom:.4rem">Opciones (marca la correcta):</div>' + opts + '<button type="button" class="btn btn-sm btn-err" onclick="this.closest(\'.qbox\').remove()" style="margin-top:.5rem;font-size:.7rem;padding:.25rem .6rem">🗑️ Quitar</button>';
+    container.appendChild(div);
+}
+</script>
+</body>
+</html>

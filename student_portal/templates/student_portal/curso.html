@@ -1,0 +1,207 @@
+{% load static %}
+{% load course_tags %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ course.title }} - LearnHub</title>
+    <link rel="stylesheet" href="{% static 'enrollment/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'student_portal/css/portal.css' %}">
+    <link rel="stylesheet" href="{% static 'student_portal/css/curso.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+        <div class="nav-left">
+            <a href="{% url 'index' %}" class="nav-logo"><i class="fas fa-graduation-cap"></i> Learn<span>Hub</span></a>
+            <a href="{% url 'student_dashboard' %}" class="nav-back"><i class="fas fa-arrow-left"></i> Mis Cursos</a>
+        </div>
+        <div class="nav-right">
+            <div class="nav-user">
+                <div class="nav-avatar">{{ student.name|default:"E"|make_list|first|upper }}</div>
+                <span class="nav-user-name">{{ student.name|truncatechars:20 }}</span>
+            </div>
+            <a href="{% url 'student_logout' %}" class="nav-logout"><i class="fas fa-sign-out-alt"></i></a>
+        </div>
+    </nav>
+
+    <!-- Course Hero -->
+    <div class="course-hero" style="--hero-img: url('{% if course.image %}{{ course.image.url }}{% endif %}')">
+        <div class="course-hero-bg"></div>
+        <div class="course-hero-content">
+            <h1>{{ course.title }}</h1>
+            <div class="course-hero-meta">
+                <span class="badge badge-level"><i class="fas fa-signal"></i> {{ course.get_level_display }}</span>
+                <span class="badge badge-duration"><i class="fas fa-clock"></i> {{ course.duration }}</span>
+                {% if exams %}<span class="badge badge-exam"><i class="fas fa-file-alt"></i> {{ exams|length }} examen(es)</span>{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="content-grid">
+            <div class="content-main">
+
+                <!-- Description -->
+                <div class="section">
+                    <h2 class="section-title"><i class="fas fa-info-circle"></i> Descripción</h2>
+                    <p class="section-text">{{ course.description }}</p>
+                </div>
+
+                <!-- Instructor -->
+                <div class="section">
+                    <h2 class="section-title"><i class="fas fa-chalkboard-teacher"></i> Instructor</h2>
+                    <div class="instructor-card">
+                        <div class="instructor-avatar">{{ course.instructor_name|default:"?"|make_list|first|upper }}</div>
+                        <div class="info">
+                            <h4>{{ course.instructor_name }}</h4>
+                            <p>{{ course.instructor_bio|default:"Instructor profesional con amplia experiencia." }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="tabs">
+                    <a href="?tab=explicacion" class="tab {% if tab == 'explicacion' %}active{% endif %}"><i class="fas fa-book-open"></i> Explicación</a>
+                    <a href="?tab=ejemplo" class="tab {% if tab == 'ejemplo' %}active{% endif %}"><i class="fas fa-code"></i> Ejemplos</a>
+                    <a href="?tab=demo" class="tab {% if tab == 'demo' %}active{% endif %}"><i class="fas fa-laptop-code"></i> Demo</a>
+                    <a href="?tab=examen" class="tab {% if tab == 'examen' %}active{% endif %}"><i class="fas fa-file-alt"></i> Examen</a>
+                    <a href="?tab=archivos" class="tab {% if tab == 'archivos' %}active{% endif %}"><i class="fas fa-folder-open"></i> Archivos</a>
+                </div>
+
+                <!-- Tab Content -->
+                {% if tab == 'explicacion' or tab == 'ejemplo' or tab == 'demo' %}
+                <div class="content-list">
+                    {% for c in contents %}
+                    <div class="content-card">
+                        <div class="content-card-header">
+                            <div class="content-number">{{ forloop.counter }}</div>
+                            <div>
+                                <div class="content-type-badge">
+                                    {% if c.section_type == 'explicacion' %}<i class="fas fa-book-open"></i> Explicación
+                                    {% elif c.section_type == 'ejemplo' %}<i class="fas fa-code"></i> Ejemplo
+                                    {% elif c.section_type == 'demo' %}<i class="fas fa-laptop-code"></i> Demo{% endif %}
+                                </div>
+                                <h4>{{ c.title }}</h4>
+                            </div>
+                        </div>
+                        {% if c.content %}<div class="content-text">{{ c.content|safe }}</div>{% endif %}
+                        {% if c.file %}
+                        <div style="margin-top:0.6rem">
+                            <a href="{{ c.file.url }}" class="exam-btn" style="background:var(--card-bg);color:var(--accent);border:1px solid var(--accent)" download><i class="fas fa-download"></i> Descargar demo</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <p class="empty-state">No hay contenido en esta secci&oacute;n.</p>
+                    {% endfor %}
+                </div>
+
+                {% elif tab == 'examen' %}
+                <div class="section">
+                    <h2 class="section-title"><i class="fas fa-file-alt"></i> Evaluaciones</h2>
+                    <div style="display:flex;flex-direction:column;gap:0.6rem">
+                        {% for e in exams %}
+                        <div class="exam-card">
+                            <div class="exam-icon"><i class="fas fa-file-signature"></i></div>
+                            <div class="exam-info">
+                                <h4>{{ e.title }}</h4>
+                                <div class="meta">{{ e.questions.count }} preguntas &middot; Nota m&iacute;nima: {{ e.passing_score }}% &middot; {{ e.time_limit_minutes }} min</div>
+                            </div>
+                            <a href="{% url 'take_exam' e.pk %}" class="exam-btn"><i class="fas fa-play"></i> Comenzar</a>
+                        </div>
+                        {% empty %}
+                        <p class="empty-state">No hay ex&aacute;menes disponibles.</p>
+                        {% endfor %}
+                    </div>
+                    {% if attempts %}
+                    <div class="attempts-title">Intentos anteriores</div>
+                    <div class="attempt-list">
+                        {% for a in attempts %}
+                        <div class="attempt-item">
+                            <span class="date">{{ a.exam.title }} &mdash; {{ a.started_at|date:"d/m/Y H:i" }}</span>
+                            <span class="score {% if a.passed %}pass{% else %}fail{% endif %}">{{ a.score }}/{{ a.total }} {% if a.passed %}✅{% else %}❌{% endif %}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% elif tab == 'archivos' %}
+                <div class="section">
+                    <h2 class="section-title"><i class="fas fa-folder-open"></i> Archivos del curso</h2>
+                    <div style="display:flex;flex-direction:column;gap:0.5rem">
+                        {% for f in files %}
+                        <div class="file-card">
+                            <div class="file-icon"><i class="fas fa-file-download"></i></div>
+                            <div class="file-info">
+                                <h4>{{ f.title }}</h4>
+                                <div class="date">Subido {{ f.uploaded_at|date:"d/m/Y" }}</div>
+                            </div>
+                            <a href="{{ f.file.url }}" class="file-dl" download><i class="fas fa-download"></i></a>
+                        </div>
+                        {% empty %}
+                        <p class="empty-state">No hay archivos disponibles.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+            </div>
+
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-card">
+                    <h3>Informaci&oacute;n del curso</h3>
+                    <ul class="sidebar-info">
+                        <li><i class="fas fa-signal"></i><span>Nivel</span><strong>{{ course.get_level_display }}</strong></li>
+                        <li><i class="fas fa-clock"></i><span>Duraci&oacute;n</span><strong>{{ course.duration }}</strong></li>
+                        <li><i class="fas fa-file-alt"></i><span>Ex&aacute;menes</span><strong>{{ exams|length }}</strong></li>
+                        {% if exams %}
+                        <li><i class="fas fa-check-circle"></i><span>Puntaje m&iacute;nimo</span><strong>{{ exams.0.passing_score }}%</strong></li>
+                        <li><i class="fas fa-hourglass-half"></i><span>Tiempo l&iacute;mite</span><strong>{{ exams.0.time_limit_minutes }} min</strong></li>
+                        {% endif %}
+                        <li><i class="fas fa-cube"></i><span>M&oacute;dulos</span><strong>{{ all_contents|length }}</strong></li>
+                        <li><i class="fas fa-question-circle"></i><span>Preguntas</span><strong>{{ questions_count }}</strong></li>
+                        <li><i class="fas fa-folder-open"></i><span>Archivos</span><strong>{{ files|length }}</strong></li>
+                    </ul>
+                </div>
+
+                {% if exams %}
+                <div class="sidebar-card">
+                    <h3>Evaluaciones</h3>
+                    {% for exam in exams %}
+                    <div class="exam-mini">
+                        <div class="exam-mini-icon"><i class="fas fa-file-signature"></i></div>
+                        <div class="exam-mini-info">
+                            <h4>{{ exam.title }}</h4>
+                            <p>{{ exam.passing_score }}% para aprobar &middot; {{ exam.time_limit_minutes }} min</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="sidebar-card">
+                    <h3><i class="fab fa-python" style="color:var(--accent)"></i> Python Console</h3>
+                    <p style="color:var(--text-muted);font-size:0.78rem;margin-bottom:0.8rem;line-height:1.5">Ejecuta c&oacute;digo Python en vivo y ve el resultado al instante.</p>
+                    <a href="{% url 'terminal:terminal_console' course.id %}" class="sidebar-cta"><i class="fas fa-terminal"></i> Abrir consola</a>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">&copy; 2026 LearnHub. Todos los derechos reservados.</div>
+
+    <div id="enrollment-modal"></div>
+
+    <script src="{% static 'enrollment/js/script.js' %}"></script>
+    <script src="{% static 'enrollment/js/code-runner.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,701 @@
+/* LearnHub - Futuristic Animations - Auto Loading */
+
+/* ======================== */
+/* MATRIX RAIN BACKGROUND */
+/* ======================== */
+
+#canvas {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 0 !important;
+    pointer-events: none !important;
+    background: #030712 !important;
+}
+
+/* ======================== */
+/* HERO BACKGROUND ANIMATION */
+/* ======================== */
+
+.hero {
+    position: relative;
+    overflow: hidden;
+    background: transparent !important;
+}
+
+/* Background animation container */
+.hero-bg-animation {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1 !important;
+    pointer-events: none;
+    background: transparent !important;
+}
+
+/* Animated grid */
+.hero-grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(rgba(96, 165, 250, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(96, 165, 250, 0.08) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: heroGridMove 20s linear infinite;
+}
+
+@keyframes heroGridMove {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(60px, 60px); }
+}
+
+/* Glowing orbs in background */
+.hero-glow {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    animation: glowFloat 8s ease-in-out infinite;
+}
+
+.hero-glow-1 {
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(96, 165, 250, 0.35) 0%, transparent 70%);
+    top: -200px;
+    left: 10%;
+    animation-delay: 0s;
+}
+
+.hero-glow-2 {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(192, 132, 252, 0.3) 0%, transparent 70%);
+    top: 50%;
+    right: -100px;
+    animation-delay: -3s;
+}
+
+.hero-glow-3 {
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(94, 234, 212, 0.25) 0%, transparent 70%);
+    bottom: -100px;
+    left: 30%;
+    animation-delay: -5s;
+}
+
+@keyframes glowFloat {
+    0%, 100% { 
+        transform: translate(0, 0) scale(1); 
+        opacity: 0.6;
+    }
+    33% { 
+        transform: translate(30px, -30px) scale(1.1); 
+        opacity: 0.8;
+    }
+    66% { 
+        transform: translate(-20px, 20px) scale(0.95); 
+        opacity: 0.5;
+    }
+}
+
+/* Additional radial gradient layer */
+.hero > .hero-bg-animation::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(ellipse 100% 80% at 30% 10%, rgba(96, 165, 250, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse 80% 60% at 70% 90%, rgba(192, 132, 252, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 50% at 50% 50%, rgba(94, 234, 212, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: -1;
+    animation: heroRadialPulse 10s ease-in-out infinite;
+}
+
+@keyframes heroRadialPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* Background glow effect */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    background: 
+        radial-gradient(circle at 15% 20%, rgba(96, 165, 250, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 85% 75%, rgba(192, 132, 252, 0.1) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(94, 234, 212, 0.07) 0%, transparent 50%);
+    animation: bgGlow 10s ease-in-out infinite;
+}
+
+@keyframes bgGlow {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.05); }
+}
+
+/* ======================== */
+/* HERO ANIMATIONS */
+/* ======================== */
+
+/* Hero content fade in */
+.hero-content {
+    animation: fadeInUp 1s ease-out forwards;
+    opacity: 1 !important;
+}
+
+/* Hero visual override */
+.hero-visual {
+    opacity: 1 !important;
+    animation: none !important;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Title gradient animation */
+.highlight.gradient-text {
+    background: linear-gradient(90deg, #60a5fa, #a78bfa, #2dd4bf, #60a5fa);
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradient-flow 4s linear infinite;
+}
+
+@keyframes gradient-flow {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 300% 50%; }
+}
+
+/* Hero stats animation */
+.hero-stats {
+    animation: fadeInUp 1s ease-out 0.5s forwards;
+    opacity: 0;
+}
+
+/* Hero buttons animation */
+.hero-buttons {
+    animation: fadeInUp 1s ease-out 0.3s forwards;
+    opacity: 0;
+}
+
+/* Floating cards in hero - Override original styles */
+.floating-card {
+    animation: float-vertical 4s ease-in-out infinite !important;
+    opacity: 1 !important;
+}
+
+.hero-visual .floating-card:nth-child(1) { animation-delay: 0s; }
+.hero-visual .floating-card:nth-child(2) { animation-delay: 0.6s; }
+.hero-visual .floating-card:nth-child(3) { animation-delay: 1.2s; }
+.hero-visual .floating-card:nth-child(4) { animation-delay: 1.8s; }
+
+@keyframes float-vertical {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+/* Hero grid background - Override to ensure visibility */
+#inicio.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        linear-gradient(rgba(79, 142, 247, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(79, 142, 247, 0.05) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: grid-scroll 20s linear infinite;
+    z-index: -1 !important;
+    pointer-events: none;
+}
+
+@keyframes grid-scroll {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(60px, 60px); }
+}
+
+/* Hero orbs */
+.hero-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    z-index: -1 !important;
+    opacity: 0.6 !important;
+    animation: orb-appear 2s ease-out forwards, orb-pulse 6s ease-in-out 2s infinite;
+}
+
+.orb-1 {
+    width: 400px;
+    height: 400px;
+    background: var(--accent);
+    top: -100px;
+    right: 10%;
+    animation-delay: 0.5s;
+}
+
+.orb-2 {
+    width: 300px;
+    height: 300px;
+    background: var(--purple);
+    bottom: 10%;
+    left: 5%;
+    animation-delay: 1s;
+}
+
+@keyframes orb-appear {
+    from { opacity: 0; transform: scale(0.5); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes orb-pulse {
+    0%, 100% { transform: scale(1); opacity: 0.3; }
+    50% { transform: scale(1.1); opacity: 0.5; }
+}
+
+.orb-1, .orb-2 {
+    animation: orb-appear 2s ease-out forwards, orb-pulse 6s ease-in-out 2s infinite;
+}
+
+/* ======================== */
+/* SECTION ANIMATIONS */
+/* ======================== */
+
+/* Section headers - auto-animate on load */
+.section-header {
+    opacity: 0;
+    animation: sectionFadeIn 0.8s ease-out 0.3s forwards;
+}
+
+@keyframes sectionFadeIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Categories grid animation */
+.categories-grid {
+    animation: sectionFadeIn 0.8s ease-out 0.5s forwards;
+    opacity: 0;
+}
+
+/* Courses grid animation */
+.courses-grid {
+    animation: sectionFadeIn 0.8s ease-out 0.7s forwards;
+    opacity: 0;
+}
+
+/* Benefits grid animation */
+.benefits-grid {
+    animation: sectionFadeIn 0.8s ease-out 0.9s forwards;
+    opacity: 0;
+}
+
+/* Testimonials animation */
+.testimonials-grid {
+    animation: sectionFadeIn 0.8s ease-out 1.1s forwards;
+    opacity: 0;
+}
+
+/* CTA section animation */
+.cta-section {
+    animation: cta-glow 4s ease-in-out infinite;
+}
+
+@keyframes cta-glow {
+    0%, 100% { 
+        box-shadow: inset 0 0 100px rgba(79, 142, 247, 0.05);
+    }
+    50% { 
+        box-shadow: inset 0 0 150px rgba(79, 142, 247, 0.1);
+    }
+}
+
+/* ======================== */
+/* CARD HOVER EFFECTS */
+/* ======================== */
+
+/* Base card shared improvements */
+.category-card,
+.course-card,
+.benefit-card,
+.testimonial-card {
+    will-change: transform, box-shadow;
+}
+
+/* Category cards hover */
+.category-card {
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.category-card:hover {
+    transform: translateY(-10px) scale(1.04);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3),
+                0 0 40px var(--accent-glow);
+}
+
+.category-card .category-icon {
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.category-card:hover .category-icon {
+    transform: scale(1.15) rotate(-5deg);
+    box-shadow: 0 0 25px var(--accent-glow);
+}
+
+/* Course cards hover */
+.course-card {
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity: 0;
+    animation: cardFadeIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.course-card:nth-child(1) { animation-delay: 0.6s; }
+.course-card:nth-child(2) { animation-delay: 0.75s; }
+.course-card:nth-child(3) { animation-delay: 0.9s; }
+.course-card:nth-child(4) { animation-delay: 1.05s; }
+.course-card:nth-child(5) { animation-delay: 1.2s; }
+.course-card:nth-child(6) { animation-delay: 1.35s; }
+
+.course-card:hover {
+    transform: translateY(-14px) scale(1.02);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4),
+                0 0 50px var(--accent-glow);
+}
+
+.course-card .course-image {
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.course-card:hover .course-image {
+    transform: scale(1.06);
+}
+
+.course-card .course-icon {
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.course-card:hover .course-icon {
+    transform: scale(1.25) rotate(-10deg);
+    filter: drop-shadow(0 0 20px var(--accent-glow));
+}
+
+.course-card .course-badge {
+    transition: all 0.3s ease;
+}
+
+.course-card:hover .course-badge {
+    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(79, 142, 247, 0.6);
+}
+
+.course-card .course-content h3 {
+    transition: color 0.3s ease;
+}
+
+.course-card:hover .course-content h3 {
+    color: var(--accent);
+}
+
+@keyframes cardFadeIn {
+    from { opacity: 0; transform: translateY(30px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Benefit cards */
+.benefit-card {
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity: 0;
+    animation: cardFadeInLeft 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.benefit-card:nth-child(1) { animation-delay: 0.8s; }
+.benefit-card:nth-child(2) { animation-delay: 0.9s; }
+.benefit-card:nth-child(3) { animation-delay: 1.0s; }
+.benefit-card:nth-child(4) { animation-delay: 1.1s; }
+.benefit-card:nth-child(5) { animation-delay: 1.2s; }
+.benefit-card:nth-child(6) { animation-delay: 1.3s; }
+
+.benefit-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3),
+                0 0 40px var(--accent-glow);
+}
+
+.benefit-card::before {
+    background: linear-gradient(90deg, transparent, var(--accent), var(--purple), transparent);
+    background-size: 200% 100%;
+    transition: opacity 0.4s ease;
+}
+
+.benefit-card:hover::before {
+    opacity: 1;
+    animation: benefitShimmer 2s linear infinite;
+}
+
+@keyframes benefitShimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+.benefit-card .benefit-icon {
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.benefit-card:hover .benefit-icon {
+    transform: scale(1.15) rotate(5deg);
+    box-shadow: 0 0 30px var(--accent-glow);
+}
+
+@keyframes cardFadeInLeft {
+    from { opacity: 0; transform: translateX(-30px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* Testimonial cards */
+.testimonial-card {
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity: 0;
+    animation: cardFadeInRight 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.testimonial-card:nth-child(1) { animation-delay: 1.0s; }
+.testimonial-card:nth-child(2) { animation-delay: 1.1s; }
+.testimonial-card:nth-child(3) { animation-delay: 1.2s; }
+
+.testimonial-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3),
+                0 0 40px var(--accent-glow);
+}
+
+.testimonial-card .avatar {
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.testimonial-card:hover .avatar {
+    transform: scale(1.15);
+    box-shadow: 0 0 30px var(--accent-glow);
+}
+
+.testimonial-card .rating i {
+    transition: all 0.3s ease;
+}
+
+.testimonial-card:hover .rating i {
+    animation: starPop 0.5s ease forwards;
+}
+
+.testimonial-card:hover .rating i:nth-child(1) { animation-delay: 0s; }
+.testimonial-card:hover .rating i:nth-child(2) { animation-delay: 0.08s; }
+.testimonial-card:hover .rating i:nth-child(3) { animation-delay: 0.16s; }
+.testimonial-card:hover .rating i:nth-child(4) { animation-delay: 0.24s; }
+.testimonial-card:hover .rating i:nth-child(5) { animation-delay: 0.32s; }
+
+@keyframes starPop {
+    0% { transform: scale(1); color: var(--amber); }
+    50% { transform: scale(1.6); color: #fbbf24; text-shadow: 0 0 10px rgba(251, 191, 36, 0.5); }
+    100% { transform: scale(1); color: var(--amber); }
+}
+
+@keyframes cardFadeInRight {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* Course image overlay enhancement */
+.course-image::after {
+    background: linear-gradient(180deg, transparent 40%, rgba(6, 9, 23, 0.6) 100%);
+    transition: opacity 0.4s ease;
+}
+
+.course-card:hover .course-image::after {
+    opacity: 0.7;
+}
+
+.category-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(79, 142, 247, 0.2);
+}
+
+/* Course cards hover */
+.course-card {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity: 0;
+    animation: cardFadeIn 0.6s ease-out forwards;
+}
+
+.course-card:nth-child(1) { animation-delay: 0.6s; }
+.course-card:nth-child(2) { animation-delay: 0.75s; }
+.course-card:nth-child(3) { animation-delay: 0.9s; }
+.course-card:nth-child(4) { animation-delay: 1.05s; }
+.course-card:nth-child(5) { animation-delay: 1.2s; }
+.course-card:nth-child(6) { animation-delay: 1.35s; }
+
+@keyframes cardFadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.course-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(79, 142, 247, 0.15);
+}
+
+/* Benefit cards */
+.benefit-card {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity: 0;
+    animation: cardFadeInLeft 0.6s ease-out forwards;
+}
+
+.benefit-card:nth-child(1) { animation-delay: 0.8s; }
+.benefit-card:nth-child(2) { animation-delay: 0.9s; }
+.benefit-card:nth-child(3) { animation-delay: 1.0s; }
+.benefit-card:nth-child(4) { animation-delay: 1.1s; }
+.benefit-card:nth-child(5) { animation-delay: 1.2s; }
+.benefit-card:nth-child(6) { animation-delay: 1.3s; }
+
+@keyframes cardFadeInLeft {
+    from { opacity: 0; transform: translateX(-30px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.benefit-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(79, 142, 247, 0.1);
+}
+
+/* Testimonial cards */
+.testimonial-card {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity: 0;
+    animation: cardFadeInRight 0.6s ease-out forwards;
+}
+
+.testimonial-card:nth-child(1) { animation-delay: 1.0s; }
+.testimonial-card:nth-child(2) { animation-delay: 1.1s; }
+.testimonial-card:nth-child(3) { animation-delay: 1.2s; }
+
+@keyframes cardFadeInRight {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.testimonial-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(79, 142, 247, 0.1);
+}
+
+/* ======================== */
+/* BUTTON ANIMATIONS */
+/* ======================== */
+
+/* Shimmer effect on buttons */
+.cta-primary, .register-btn, .enroll-btn, .view-all-btn, .cta-final-btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-primary::after, .register-btn::after, .enroll-btn::after, .view-all-btn::after, .cta-final-btn::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    animation: button-shimmer 3s infinite;
+}
+
+@keyframes button-shimmer {
+    0% { left: -100%; }
+    50%, 100% { left: 100%; }
+}
+
+/* Button hover effect */
+.cta-primary:hover, .register-btn:hover, .enroll-btn:hover, .view-all-btn:hover, .cta-final-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(79, 142, 247, 0.4);
+}
+
+/* ======================== */
+/* NAVBAR SCROLL EFFECT */
+/* ======================== */
+
+nav {
+    transition: all 0.3s ease;
+}
+
+nav.scrolled {
+    background: rgba(6, 9, 23, 0.95);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* ======================== */
+/* MOBILE OPTIMIZATION */
+/* ======================== */
+
+@media (max-width: 768px) {
+    .hero-content, .hero-stats, .hero-buttons, .floating-card,
+    .section-header, .categories-grid, .courses-grid, .benefits-grid,
+    .testimonials-grid, .course-card, .benefit-card, .testimonial-card {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+    
+    .orb-1 { width: 200px; height: 200px; }
+    .orb-2 { width: 150px; height: 150px; }
+}
+
+/* ======================== */
+/* MATRIX: HIDE CONFLICTING HERO BACKGROUND ELEMENTS */
+/* ======================== */
+
+.hero-bg-animation,
+.hero-orb,
+#inicio.hero::before,
+.hero > .hero-bg-animation::after,
+body::before {
+    display: none !important;
+}
+
+/* ======================== */
+/* REDUCED MOTION */
+/* ======================== */
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

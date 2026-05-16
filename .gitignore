@@ -1,0 +1,9 @@
+*.pyc
+__pycache__/
+db.sqlite3
+client_secret_*.json
+token.json
+code_verifier.json
+.env
+venv/
+.venv/

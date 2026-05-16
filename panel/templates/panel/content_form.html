@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agregar Contenido – {{ course.title }}</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="{% static 'panel/css/content_form.css' %}">
+</head>
+<body>
+<div class="card">
+  <h1>📖 Agregar <span>Contenido</span></h1>
+  <p>Curso: {{ course.title }}</p>
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="mf">
+      <label>Tipo de contenido</label>
+      <select name="section_type" required>
+        <option value="explicacion">Explicación</option>
+        <option value="ejemplo">Ejemplo</option>
+        <option value="demo">Demo</option>
+      </select>
+    </div>
+    <div class="mf"><label>Título</label><input type="text" name="title" required placeholder="Ej: Variables en Python"></div>
+    <div class="mf"><label>Contenido (HTML)</label><textarea name="content" placeholder="Escribe aquí el contenido HTML..."></textarea></div>
+    <div class="mf"><label>Archivo (opcional, para demos)</label><input type="file" name="file"></div>
+    <div class="mf"><label>Orden</label><input type="number" name="order" value="0"></div>
+    <div class="ma">
+      <a href="{% url 'course_detail' course.pk %}" class="btn btn-cancel">Cancelar</a>
+      <button type="submit" class="btn btn-primary">💾 Guardar</button>
+    </div>
+  </form>
+</div>
+</body>
+</html>

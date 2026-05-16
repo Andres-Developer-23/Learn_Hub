@@ -1,0 +1,345 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Notificaciones y Solicitudes – LearnHub</title>
+<link rel="stylesheet" href="{% static 'panel/css/notifications.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+<aside class="sb">
+  <div class="logo">Learn<span>Hub</span></div>
+
+  <div class="ns">Principal</div>
+  <a href="{% url 'admin_dashboard' %}" class="ni"><span class="ic">📊</span><span>Dashboard</span></a>
+  <a href="#sec-students" class="ni" onclick="window.location.href='{% url 'admin_dashboard' %}#sec-students'"><span class="ic">👥</span><span>Estudiantes</span></a>
+  <a href="{% url 'notifications_view' %}" class="ni active"><span class="ic">🔔</span><span>Notificaciones</span>{% if total_pending > 0 %}<span class="sb-notif-badge">{{ total_pending }}</span>{% endif %}</a>
+
+  <div class="ns">Acciones</div>
+  <a href="{% url 'course_list' %}" class="ni"><span class="ic">📚</span><span>Cursos</span></a>
+  <a href="{% url 'export_csv' %}" class="ni"><span class="ic">📥</span><span>Exportar CSV</span></a>
+  <a href="/" class="ni"><span class="ic">🌐</span><span>Ver sitio web</span></a>
+  <a href="/admin/" class="ni"><span class="ic">⚙️</span><span>Django Admin</span></a>
+
+  <div class="sf">
+    <div class="up">
+      <div class="av">{{ request.user.username|slice:":1"|upper }}</div>
+      <div class="ui"><strong>{{ request.user.username }}</strong><small>Administrador</small></div>
+    </div>
+    <a href="{% url 'admin_logout' %}" class="lb"><span class="ic">🚪</span><span>Cerrar sesión</span></a>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="tb">
+    <h1 class="pt">Notificaciones y <span>Solicitudes</span></h1>
+  </div>
+
+  <div class="stat-cards">
+    <div class="stat-card students">
+      <div class="stat-label">Solicitudes de Estudiantes</div>
+      <div class="stat-value">{{ pending_students_count }}</div>
+      <div class="stat-sub">Pendientes de revisión</div>
+    </div>
+    <div class="stat-card enrollments">
+      <div class="stat-label">Solicitudes de Cursos</div>
+      <div class="stat-value">{{ pending_enrollments_count }}</div>
+      <div class="stat-sub">Inscripciones a cursos</div>
+    </div>
+    <div class="stat-card notifications">
+      <div class="stat-label">Notificaciones</div>
+      <div class="stat-value">{{ unread_notifications_count }}</div>
+      <div class="stat-sub">Mensajes sin leer</div>
+    </div>
+    <div class="stat-card total">
+      <div class="stat-label">Total Pendiente</div>
+      <div class="stat-value">{{ total_pending }}</div>
+      <div class="stat-sub">Acciones requeridas</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="all">Todo ({{ total_pending }})</button>
+    <button class="tab-btn" data-tab="students">Estudiantes ({{ pending_students_count }})</button>
+    <button class="tab-btn" data-tab="enrollments">Cursos ({{ pending_enrollments_count }})</button>
+    <button class="tab-btn" data-tab="notifications">Mensajes ({{ unread_notifications_count }})</button>
+    <button class="tab-btn" data-tab="history">Historial ({{ read_notifications_count }})</button>
+  </div>
+
+  <div id="tab-all" class="tab-content"
+       data-url-accept-notif="{% url 'notification_accept' pk='0' %}"
+       data-url-reject-notif="{% url 'notification_reject' pk='0' %}"
+       data-url-mark-read="{% url 'notification_mark_read' pk='0' %}"
+       data-url-mark-unread="{% url 'notification_mark_unread' pk='0' %}"
+       data-url-accept-enroll="{% url 'enrollment_accept' pk='0' %}"
+       data-url-reject-enroll="{% url 'enrollment_reject' pk='0' %}">
+    {% if not pending_students and not pending_enrollments and not unread_notifications %}
+    <div class="empty"><i class="fas fa-check-circle"></i>No hay notificaciones ni solicitudes pendientes</div>
+    {% else %}
+    {% for s in pending_students %}
+    <div class="card" data-type="students">
+      <div class="item">
+        <div class="item-icon" style="background: var(--warn-bg); color: var(--warn);">👤</div>
+        <div class="item-info">
+          <div class="item-title">{{ s.name }}</div>
+          <div class="item-sub">{{ s.email }} · {{ s.get_level_display }}</div>
+        </div>
+        <div class="item-meta">{{ s.created_at|date:"d/m/Y H:i" }}</div>
+        <div class="item-actions">
+          <button class="btn btn-accept" onclick="handleAction('accept', {{ s.pk }})">✓ Aceptar</button>
+          <button class="btn btn-reject" onclick="handleAction('reject', {{ s.pk }})">✗ Rechazar</button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+
+    {% for e in pending_enrollments %}
+    <div class="card" data-type="enrollments">
+      <div class="item">
+        <div class="item-icon" style="background: var(--purple-bg); color: var(--purple);">📚</div>
+        <div class="item-info">
+          <div class="item-title">{{ e.student.name }} → {{ e.course.title }}</div>
+          <div class="item-sub">Solicitud de inscripción al curso</div>
+        </div>
+        <div class="item-meta">{{ e.created_at|date:"d/m/Y H:i" }}</div>
+        <div class="item-actions">
+          <button class="btn btn-accept" onclick="handleEnrollment({{ e.pk }}, 'accept')">✓ Aceptar</button>
+          <button class="btn btn-reject" onclick="handleEnrollment({{ e.pk }}, 'reject')">✗ Rechazar</button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+
+    {% for n in unread_notifications %}
+    <div class="card" data-type="notifications">
+      <div class="item">
+        <div class="item-icon" style="background: {% if n.notif_type == 'success' %}var(--ok-bg){% elif n.notif_type == 'error' %}var(--err-bg){% elif n.notif_type == 'warning' %}var(--warn-bg){% else %}var(--info-bg){% endif %}; color: {% if n.notif_type == 'success' %}var(--ok){% elif n.notif_type == 'error' %}var(--err){% elif n.notif_type == 'warning' %}var(--warn){% else %}var(--info){% endif %};">
+          {% if n.notif_type == 'success' %}✓{% elif n.notif_type == 'error' %}✗{% elif n.notif_type == 'warning' %}⚠{% else %}ℹ{% endif %}
+        </div>
+        <div class="item-info">
+          <div class="item-title">{{ n.title }}</div>
+          <div class="item-sub">{{ n.message|truncatechars:80 }}</div>
+        </div>
+        <div class="item-meta">{{ n.created_at|date:"d/m/Y H:i" }}</div>
+        <div class="item-actions">
+          <button class="btn btn-mark" onclick="markRead({{ n.pk }})">✓ Marcar leído</button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+  </div>
+
+  <div id="tab-students" class="tab-content hidden">
+    {% if not pending_students %}
+    <div class="empty"><i class="fas fa-user-clock"></i>No hay solicitudes de estudiantes pendientes</div>
+    {% else %}
+    {% for s in pending_students %}
+    <div class="card">
+      <div class="item">
+        <div class="item-icon" style="background: var(--warn-bg); color: var(--warn);">👤</div>
+        <div class="item-info">
+          <div class="item-title">{{ s.name }}</div>
+          <div class="item-sub">{{ s.email }} · {{ s.get_level_display }}</div>
+        </div>
+        <div class="item-meta">{{ s.created_at|date:"d/m/Y H:i" }}</div>
+        <div class="item-actions">
+          <button class="btn btn-accept" onclick="handleAction('accept', {{ s.pk }})">✓ Aceptar</button>
+          <button class="btn btn-reject" onclick="handleAction('reject', {{ s.pk }})">✗ Rechazar</button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+  </div>
+
+  <div id="tab-enrollments" class="tab-content hidden">
+    {% if not pending_enrollments %}
+    <div class="empty"><i class="fas fa-book-open"></i>No hay solicitudes de cursos pendientes</div>
+    {% else %}
+    {% for e in pending_enrollments %}
+    <div class="card">
+      <div class="item">
+        <div class="item-icon" style="background: var(--purple-bg); color: var(--purple);">📚</div>
+        <div class="item-info">
+          <div class="item-title">{{ e.student.name }} → {{ e.course.title }}</div>
+          <div class="item-sub">Solicitud de inscripción al curso</div>
+        </div>
+        <div class="item-meta">{{ e.created_at|date:"d/m/Y H:i" }}</div>
+        <div class="item-actions">
+          <button class="btn btn-accept" onclick="handleEnrollment({{ e.pk }}, 'accept')">✓ Aceptar</button>
+          <button class="btn btn-reject" onclick="handleEnrollment({{ e.pk }}, 'reject')">✗ Rechazar</button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+  </div>
+
+  <div id="tab-notifications" class="tab-content hidden">
+    {% if not unread_notifications %}
+    <div class="empty"><i class="fas fa-envelope-open"></i>No hay notificaciones sin leer</div>
+    {% else %}
+    {% for n in unread_notifications %}
+    <div class="card">
+      <div class="item">
+        <div class="item-icon" style="background: {% if n.notif_type == 'success' %}var(--ok-bg){% elif n.notif_type == 'error' %}var(--err-bg){% elif n.notif_type == 'warning' %}var(--warn-bg){% else %}var(--info-bg){% endif %}; color: {% if n.notif_type == 'success' %}var(--ok){% elif n.notif_type == 'error' %}var(--err){% elif n.notif_type == 'warning' %}var(--warn){% else %}var(--info){% endif %};">
+          {% if n.notif_type == 'success' %}✓{% elif n.notif_type == 'error' %}✗{% elif n.notif_type == 'warning' %}⚠{% else %}ℹ{% endif %}
+        </div>
+        <div class="item-info">
+          <div class="item-title">{{ n.title }}</div>
+          <div class="item-sub">{{ n.message|truncatechars:80 }}</div>
+        </div>
+        <div class="item-meta">{{ n.created_at|date:"d/m/Y H:i" }}</div>
+        <div class="item-actions">
+          <button class="btn btn-mark" onclick="markRead({{ n.pk }})">✓ Marcar leído</button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+  </div>
+
+  <div id="tab-history" class="tab-content hidden">
+    {% if not read_notifications %}
+    <div class="empty"><i class="fas fa-history"></i>No hay historial de notificaciones</div>
+    {% else %}
+    {% for n in read_notifications %}
+    <div class="card" data-type="history">
+      <div class="item" style="opacity: 0.7;">
+        <div class="item-icon" style="background: {% if n.notif_type == 'success' %}var(--ok-bg){% elif n.notif_type == 'error' %}var(--err-bg){% elif n.notif_type == 'warning' %}var(--warn-bg){% else %}var(--info-bg){% endif %}; color: {% if n.notif_type == 'success' %}var(--ok){% elif n.notif_type == 'error' %}var(--err){% elif n.notif_type == 'warning' %}var(--warn){% else %}var(--info){% endif %};">
+          {% if n.notif_type == 'success' %}✓{% elif n.notif_type == 'error' %}✗{% elif n.notif_type == 'warning' %}⚠{% else %}ℹ{% endif %}
+        </div>
+        <div class="item-info">
+          <div class="item-title">{{ n.title }}</div>
+          <div class="item-sub">{{ n.message|truncatechars:80 }}</div>
+        </div>
+        <div class="item-meta">{{ n.created_at|date:"d/m/Y H:i" }}</div>
+        <div class="item-actions">
+          <button class="btn btn-mark" onclick="markUnread({{ n.pk }})">📤 Marcar no leído</button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script src="{% static 'panel/js/notifications.js' %}"></script>
+<script>
+const CSRF = '{{ csrf_token }}';
+
+function getUrl(dataAttr, pk) {
+    const container = document.getElementById('tab-all');
+    let baseUrl = container.dataset[dataAttr];
+    return baseUrl.replace('0', pk);
+}
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.remove('hidden');
+    });
+});
+
+function handleAction(action, pk) {
+    const url = action === 'accept' 
+        ? getUrl('urlAcceptNotif', pk)
+        : getUrl('urlRejectNotif', pk);
+    
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': CSRF,
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.status === 'success') {
+            showToast(action === 'accept' ? '✅ Estudiante aceptado' : '❌ Estudiante rechazado', 'ok');
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showToast('❌ Error al procesar solicitud', 'er');
+        }
+    })
+    .catch(err => {
+        showToast('❌ Error de conexión', 'er');
+    });
+}
+
+function handleEnrollment(pk, action) {
+    const url = action === 'accept' 
+        ? getUrl('urlAcceptEnroll', pk)
+        : getUrl('urlRejectEnroll', pk);
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': CSRF,
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.status === 'success') {
+            showToast(action === 'accept' ? '✅ Inscripción aceptada' : '❌ Inscripción rechazada', 'ok');
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showToast('❌ Error al procesar solicitud', 'er');
+        }
+    })
+    .catch(err => {
+        showToast('❌ Error de conexión', 'er');
+    });
+}
+
+function markRead(pk) {
+    fetch(getUrl('urlMarkRead', pk), {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': CSRF,
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.status === 'success') {
+            showToast('📖 Notificación marcada como leída', 'ok');
+            setTimeout(() => location.reload(), 1000);
+        }
+    });
+}
+
+function markUnread(pk) {
+    fetch(getUrl('urlMarkUnread', pk), {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': CSRF,
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.status === 'success') {
+            showToast('📌 Notificación marcada como no leída', 'ok');
+            setTimeout(() => location.reload(), 1000);
+        }
+    });
+}
+
+function showToast(msg, type) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast ' + type + ' show';
+    setTimeout(() => t.className = 'toast', 3000);
+}
+</script>
+</body>
+</html>

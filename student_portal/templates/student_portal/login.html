@@ -1,0 +1,58 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Portal Estudiante – LearnHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="{% static 'student_portal/css/portal.css' %}">
+</head>
+<body>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+<div class="wrapper">
+<div class="card">
+  <div class="header">
+    <div class="icon-wrap"><i class="fas fa-graduation-cap"></i></div>
+    <div class="logo">Learn<span>Hub</span></div>
+    <p class="sub">Portal del Estudiante — Ingresa con tu cuenta</p>
+  </div>
+
+  {% if messages %}{% for m in messages %}
+  <div class="err"><i class="fas fa-exclamation-circle"></i> {{ m }}</div>{% endfor %}{% endif %}
+
+  <form method="POST" action="{% url 'student_login' %}">
+    {% csrf_token %}
+    <div class="field">
+      <label>Usuario</label>
+      <div class="input-wrap">
+        <i class="fas fa-user"></i>
+        <input type="text" name="username" required autofocus placeholder="tu_usuario">
+      </div>
+    </div>
+    <div class="field">
+      <label>Contraseña</label>
+      <div class="input-wrap">
+        <i class="fas fa-lock"></i>
+        <input type="password" name="password" required placeholder="••••••••">
+      </div>
+    </div>
+    <div class="options">
+      <label class="remember">
+        <input type="checkbox" name="remember"> Recordarme
+      </label>
+      <a href="#" class="forgot-link">¿Olvidaste tu contraseña?</a>
+    </div>
+    <button type="submit" class="btn"><i class="fas fa-right-to-bracket"></i> Ingresar al Portal</button>
+  </form>
+
+  <div class="links">
+    <a href="/" class="link"><i class="fas fa-arrow-left"></i> Inicio</a>
+    <a href="/panel/login/" class="link"><i class="fas fa-shield-halved"></i> Administrador</a>
+  </div>
+</div>
+</div>
+</body>
+</html>

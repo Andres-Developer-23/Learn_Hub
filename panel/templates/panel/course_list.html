@@ -1,0 +1,44 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cursos – LearnHub Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="{% static 'panel/css/course_list.css' %}">
+</head>
+<body>
+<a href="{% url 'admin_dashboard' %}" class="nav-link">← Volver al Dashboard</a>
+<div class="top">
+  <h1>📚 <span>Cursos</span></h1>
+  <a href="{% url 'course_create' %}" class="btn btn-primary">+ Nuevo Curso</a>
+</div>
+
+{% if messages %}{% for m in messages %}<div class="msg {{ m.tags }}">{{ m }}</div>{% endfor %}{% endif %}
+
+<div class="card">
+  <table>
+    <thead><tr><th>#</th><th>Título</th><th>Nivel</th><th>Duración</th><th>Estado</th><th>Acciones</th></tr></thead>
+    <tbody>
+      {% for c in courses %}
+      <tr>
+        <td>{{ c.order }}</td>
+        <td><strong>{{ c.icon }} {{ c.title }}</strong><br><small style="color:var(--mu)">{{ c.description|truncatechars:60 }}</small></td>
+        <td><span class="bx b-{{ c.level }}">{{ c.get_level_display }}</span></td>
+        <td>{{ c.duration }}</td>
+        <td>{% if c.is_active %}<span class="bx" style="background:var(--ok-bg);color:var(--ok)">Activo</span>{% else %}<span class="bx" style="background:var(--err-bg);color:var(--err)">Inactivo</span>{% endif %}</td>
+        <td>
+          <a href="{% url 'course_detail' c.pk %}" class="btn btn-sm btn-ok">📖 Ver</a>
+          <a href="{% url 'course_edit' c.pk %}" class="btn btn-sm btn-warn">✏️ Editar</a>
+          <form method="POST" action="{% url 'course_delete' c.pk %}" style="display:inline" onsubmit="return confirm('¿Eliminar {{ c.title }}?')">{% csrf_token %}<button type="submit" class="btn btn-sm btn-err">🗑️</button></form>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6" class="empty">No hay cursos. Crea el primero.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+</body>
+</html>

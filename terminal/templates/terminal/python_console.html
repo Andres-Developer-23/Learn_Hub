@@ -1,0 +1,325 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Console - {{ course.title }} - LearnHub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'terminal/css/console.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="load-spin"></div>
+        <div class="load-text">Iniciando <span>Python 3.11</span>...</div>
+        <div class="load-step" id="load-step">Cargando Pyodide...</div>
+    </div>
+
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="topbar-logo"><i class="fas fa-graduation-cap"></i> Learn<span>Hub</span></div>
+            <div class="topbar-sep"></div>
+            <span class="topbar-label"><strong>{{ course.title }}</strong> &middot; Python Console</span>
+        </div>
+        <div class="topbar-right">
+            <button class="topbar-btn" id="font-btn" title="Cambiar tamaño"><i class="fas fa-text-height"></i></button>
+            <a href="{% url 'student_course_detail' course.id %}" class="topbar-link"><i class="fas fa-arrow-left"></i> Volver</a>
+        </div>
+    </div>
+
+    <div class="split-container" id="split">
+        <div class="panel panel-left">
+            <div class="panel-header">
+                <span><i class="fas fa-code"></i> Código</span>
+                <span class="badge" id="line-info">Línea 1</span>
+            </div>
+            <div class="editor-wrapper">
+                <div class="line-numbers" id="line-numbers"><span>1</span></div>
+                <div class="editor-area">
+                    <textarea id="code-input"
+                        placeholder="Escribe tu c\u00f3digo Python aqu\u00ed..."
+                        spellcheck="false" autofocus></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="divider" id="divider"></div>
+        <div class="panel panel-right">
+            <div class="panel-header">
+                <span><i class="fas fa-terminal"></i> Resultado</span>
+                <button class="topbar-btn" id="clear-output" title="Limpiar salida" style="width:24px;height:24px;font-size:0.6rem"><i class="fas fa-trash-alt"></i></button>
+            </div>
+            <div class="output-area" id="output-area">
+                <div class="output-empty" id="empty-state">
+                    <i class="fas fa-terminal"></i>
+                    <span>Ejecuta tu c\u00f3digo para ver el resultado</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="action-bar">
+        <button class="run-btn" id="run-btn"><i class="fas fa-play"></i> Ejecutar</button>
+        <span class="action-hint"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> para ejecutar &middot; <kbd>Ctrl+L</kbd> limpiar salida</span>
+        <span id="status-msg" style="font-size:0.68rem;color:var(--comment);margin-left:auto">Listo</span>
+    </div>
+
+    <div class="statusbar">
+        <span><span class="status-dot online"></span><span id="conn-status">Iniciando...</span></span>
+        <div class="statusbar-right">
+            <span id="line-count">0 líneas</span>
+            <span>Pyodide v0.25.0</span>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            var editor = document.getElementById('code-input');
+            var output = document.getElementById('output-area');
+            var emptyState = document.getElementById('empty-state');
+            var runBtn = document.getElementById('run-btn');
+            var clearOut = document.getElementById('clear-output');
+            var fontBtn = document.getElementById('font-btn');
+            var lineNums = document.getElementById('line-numbers');
+            var lineInfo = document.getElementById('line-info');
+            var statusMsg = document.getElementById('status-msg');
+            var connStatus = document.getElementById('conn-status');
+            var loadEl = document.getElementById('loading-overlay');
+            var loadStep = document.getElementById('load-step');
+            var fontSize = parseInt(localStorage.getItem('consoleFont') || '13');
+
+            applyFontSize(fontSize);
+
+            fontBtn.onclick = function () {
+                var sizes = [11, 12, 13, 14, 15, 16, 18];
+                var idx = sizes.indexOf(fontSize);
+                fontSize = sizes[(idx + 1) % sizes.length];
+                localStorage.setItem('consoleFont', fontSize);
+                applyFontSize(fontSize);
+            };
+
+            function applyFontSize(px) {
+                editor.style.fontSize = px + 'px';
+                output.style.fontSize = px + 'px';
+                lineNums.style.fontSize = px + 'px';
+                document.querySelector('.panel-header').style.fontSize = '0.7rem';
+            }
+
+            // ─── Line numbers ────────────────────────────
+            function updateLineNumbers() {
+                var lines = editor.value.split('\n');
+                var html = '';
+                for (var i = 1; i <= lines.length; i++) {
+                    html += '<span' + (i === editor.value.substr(0, editor.selectionStart).split('\n').length ? ' class="current-line"' : '') + '>' + i + '</span>';
+                }
+                lineNums.innerHTML = html;
+                lineInfo.textContent = 'Línea ' + editor.value.substr(0, editor.selectionStart).split('\n').length;
+            }
+
+            editor.addEventListener('input', updateLineNumbers);
+            editor.addEventListener('scroll', function () {
+                lineNums.scrollTop = editor.scrollTop;
+            });
+            editor.addEventListener('keyup', updateLineNumbers);
+            editor.addEventListener('click', updateLineNumbers);
+            updateLineNumbers();
+
+            // ─── Tab support ─────────────────────────────
+            editor.addEventListener('keydown', function (e) {
+                if (e.key === 'Tab') {
+                    e.preventDefault();
+                    var start = this.selectionStart, end = this.selectionEnd;
+                    this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
+                    this.selectionStart = this.selectionEnd = start + 4;
+                    updateLineNumbers();
+                }
+                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                    e.preventDefault();
+                    runCode();
+                }
+                if ((e.ctrlKey || e.metaKey) && e.key === 'l') {
+                    e.preventDefault();
+                    clearOutput();
+                }
+            });
+
+            // ─── Resizable divider ──────────────────────
+            var divider = document.getElementById('divider');
+            var split = document.getElementById('split');
+            var isDragging = false;
+
+            divider.addEventListener('mousedown', function (e) {
+                isDragging = true;
+                var startX = e.clientX;
+                var startW = split.offsetWidth;
+                document.body.style.cursor = 'col-resize';
+                document.body.style.userSelect = 'none';
+
+                function onMove(ev) {
+                    if (!isDragging) return;
+                    var pct = (ev.clientX / startW) * 100;
+                    if (pct < 25) pct = 25;
+                    if (pct > 75) pct = 75;
+                    var left = document.querySelector('.panel-left');
+                    var right = document.querySelector('.panel-right');
+                    left.style.flex = 'none';
+                    right.style.flex = 'none';
+                    left.style.width = 'calc(' + pct + '% - 2px)';
+                    right.style.width = 'calc(' + (100 - pct) + '% - 2px)';
+                }
+                function onUp() {
+                    isDragging = false;
+                    document.body.style.cursor = '';
+                    document.body.style.userSelect = '';
+                    document.removeEventListener('mousemove', onMove);
+                    document.removeEventListener('mouseup', onUp);
+                }
+                document.addEventListener('mousemove', onMove);
+                document.addEventListener('mouseup', onUp);
+            });
+
+            // ─── Output ─────────────────────────────────
+            var cmdCount = 0;
+            var outLines = 0;
+
+            function clearOutput() {
+                output.innerHTML = '';
+                outLines = 0;
+                emptyState.style.display = 'flex';
+                document.getElementById('line-count').textContent = '0 líneas';
+            }
+
+            clearOut.onclick = clearOutput;
+
+            function addOut(html, cls) {
+                emptyState.style.display = 'none';
+                var div = document.createElement('div');
+                div.className = 'out-line ' + (cls || 'stdout');
+                div.innerHTML = html;
+                output.appendChild(div);
+                outLines++;
+                document.getElementById('line-count').textContent = outLines + ' línea(s)';
+                output.scrollTop = output.scrollHeight;
+            }
+
+            // ─── Pyodide ─────────────────────────────────
+            async function getPy() {
+                if (window.__pyodideReady) return window.__pyodideReady;
+                return new Promise(function (resolve, reject) {
+                    var s = document.createElement('script');
+                    s.src = 'https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js';
+                    s.onload = function () {
+                        loadStep.textContent = 'Compilando Python en WebAssembly...';
+                        loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.25.0/full/' })
+                            .then(function (py) {
+                                window.__pyodide = py;
+                                window.__pyodideReady = Promise.resolve(py);
+                                // Override input() to use browser prompt dialog
+                                py.runPython(
+                                    'import js\n' +
+                                    'def _input(prompt_text=""):\n' +
+                                    '    result = js.prompt(prompt_text or "")\n' +
+                                    '    if result is None:\n' +
+                                    '        raise EOFError("input(): user cancelled")\n' +
+                                    '    return result\n' +
+                                    'import builtins\n' +
+                                    'builtins.input = _input\n'
+                                );
+                                loadEl.classList.add('hidden');
+                                connStatus.textContent = 'Conectado';
+                                resolve(py);
+                            }).catch(function (e) {
+                                loadStep.textContent = 'Error: ' + e.message;
+                                connStatus.textContent = 'Error';
+                                reject(e);
+                            });
+                    };
+                    s.onerror = function () {
+                        loadStep.textContent = 'Error de conexi\u00f3n. Verifica tu internet.';
+                        connStatus.textContent = 'Desconectado';
+                        reject(Error('No se pudo cargar Pyodide.'));
+                    };
+                    document.head.appendChild(s);
+                });
+            }
+
+            async function runCode() {
+                var code = editor.value.trim();
+                if (!code) return;
+
+                cmdCount++;
+                runBtn.disabled = true;
+                runBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Ejecutando...';
+                statusMsg.textContent = 'Ejecutando...';
+                connStatus.textContent = 'Ejecutando...';
+                var startTime = Date.now();
+
+                try {
+                    var py = await getPy();
+
+                    // Auto-install packages
+                    var checks = {pandas:'pandas',numpy:'numpy','sklearn.':'scikit-learn',sklearn:'scikit-learn',
+                        matplotlib:'matplotlib',seaborn:'seaborn',PIL:'pillow'};
+                    var needs = [];
+                    for (var k in checks) {
+                        if (code.indexOf(k) >= 0 && needs.indexOf(checks[k]) < 0) needs.push(checks[k]);
+                    }
+                    for (var i = 0; i < needs.length; i++) {
+                        addOut('<i class="fas fa-spinner fa-spin"></i> Instalando ' + needs[i] + '...', 'muted');
+                        try { await py.loadPackage(needs[i]); } catch (e) {}
+                    }
+
+                    await py.runPython('import sys,io; _b=io.StringIO(); sys.stdout=_b; sys.stderr=_b');
+                    var outputText = '';
+                    try {
+                        await py.runPython(code);
+                        outputText = await py.runPython('_b.getvalue()');
+                    } catch (pyErr) {
+                        try { outputText = await py.runPython('_b.getvalue()'); } catch (e2) {}
+                        var msg = pyErr.message || String(pyErr);
+                        msg = msg.replace(/^PythonError:\s*/, '');
+                        outputText += (outputText ? '\n' : '') + msg;
+                    }
+                    try { await py.runPython('sys.stdout=sys.__stdout__; sys.stderr=sys.__stderr__; _b.close()'); } catch (e) {}
+
+                    var elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
+
+                    if (outputText && outputText.trim()) {
+                        var lines = outputText.split('\n');
+                        for (var j = 0; j < lines.length; j++) {
+                            var l = lines[j];
+                            if (!l.trim() && lines.length > 1) continue;
+                            var isErr = /(Error|Traceback|SyntaxError|NameError|TypeError|ValueError|ModuleNotFound|ImportError|Exception|FileNotFound|KeyError|IndexError|AttributeError|ZeroDivisionError)/.test(l);
+                            var suffix = (j === lines.length - 1 ? '<span class="elapsed">' + elapsed + 's</span>' : '');
+                            addOut(esc(l) + suffix, isErr ? 'stderr' : 'stdout');
+                        }
+                    } else {
+                        addOut('<span style="color:var(--comment);font-style:italic">(sin salida)</span> <span class="elapsed">' + elapsed + 's</span>', '');
+                    }
+                } catch (err) {
+                    addOut(esc(err.message || String(err)), 'stderr');
+                }
+
+                runBtn.disabled = false;
+                runBtn.innerHTML = '<i class="fas fa-play"></i> Ejecutar';
+                statusMsg.textContent = 'Listo (' + ((Date.now() - startTime) / 1000).toFixed(2) + 's)';
+                connStatus.textContent = 'Conectado';
+            }
+
+            runBtn.onclick = runCode;
+
+            function esc(t) {
+                if (!t) return '';
+                var d = document.createElement('div');
+                d.appendChild(document.createTextNode(t));
+                return d.innerHTML;
+            }
+
+            // ─── Init ───────────────────────────────────
+            setTimeout(function () { getPy().catch(function () {}); }, 200);
+            editor.focus();
+            connStatus.textContent = 'Cargando...';
+        })();
+    </script>
+</body>
+</html>

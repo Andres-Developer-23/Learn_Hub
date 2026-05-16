@@ -1,0 +1,247 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ course.title }} - LearnHub</title>
+    {% load static %}
+{% load course_tags %}
+    <link rel="stylesheet" href="{% static 'enrollment/css/style.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <i class="fas fa-graduation-cap"></i> Learn<span>Hub</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="{% url 'index' %}#inicio">Inicio</a></li>
+                <li><a href="{% url 'index' %}#cursos">Cursos</a></li>
+                <li><a href="{% url 'index' %}#categorias">Categorías</a></li>
+                <li><a href="{% url 'index' %}#beneficios">Beneficios</a></li>
+                <li><a href="{% url 'index' %}#testimonios">Testimonios</a></li>
+            </ul>
+            <div class="nav-buttons">
+                <a href="{% url 'student_login' %}" class="login-btn">Iniciar Sesión</a>
+                <a href="{% url 'index' %}#inscripcion" class="register-btn">
+                    <i class="fas fa-user-plus"></i> Regístrate gratis
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="course-detail-hero">
+            <div class="course-detail-hero-bg"></div>
+            <div class="course-detail-hero-content">
+                <a href="{% url 'index' %}#cursos" class="back-link"><i class="fas fa-arrow-left"></i> Volver a cursos</a>
+                <div class="course-detail-icon">
+                    {% course_icon course 90 18 %}
+                </div>
+                <h1>{{ course.title }}</h1>
+                <div class="course-detail-meta">
+                    <span class="meta-badge level-badge"><i class="fas fa-signal"></i> {{ course.get_level_display }}</span>
+                    <span class="meta-badge duration-badge"><i class="fas fa-clock"></i> {{ course.duration }}</span>
+                    {% if exams %}
+                    <span class="meta-badge exam-badge"><i class="fas fa-file-alt"></i> {{ exams|length }} examen(es)</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="course-detail-body">
+            <div class="course-detail-grid">
+                <div class="course-detail-main">
+                    <section class="detail-section">
+                        <h2><i class="fas fa-info-circle"></i> Descripción</h2>
+                        <p class="detail-description">{{ course.description }}</p>
+                    </section>
+
+                    <section class="detail-section">
+                        <h2><i class="fas fa-chalkboard-teacher"></i> Instructor</h2>
+                        <div class="instructor-card">
+                            <div class="instructor-avatar-lg">
+                                {{ course.instructor_name|default:"?"|make_list|first|upper }}
+                            </div>
+                            <div class="instructor-info">
+                                <h3>{{ course.instructor_name }}</h3>
+                                <p>{{ course.instructor_bio|default:"Instructor profesional con amplia experiencia en la industria." }}</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="detail-section">
+                        <h2><i class="fas fa-list"></i> Contenido del curso</h2>
+                        <div class="contents-list">
+                            {% for content in contents %}
+                            <div class="content-item-detail">
+                                <div class="content-number">{{ forloop.counter }}</div>
+                                <div class="content-body">
+                                    <span class="content-type">
+                                        {% if content.section_type == 'explicacion' %}
+                                        <i class="fas fa-book-open"></i> Explicación
+                                        {% elif content.section_type == 'ejemplo' %}
+                                        <i class="fas fa-code"></i> Ejemplo
+                                        {% elif content.section_type == 'demo' %}
+                                        <i class="fas fa-laptop-code"></i> Demo
+                                        {% else %}
+                                        <i class="fas fa-file"></i> {{ content.section_type }}
+                                        {% endif %}
+                                    </span>
+                                    <h4>{{ content.title }}</h4>
+                                    {% if content.content %}
+                                    <div class="content-text">{{ content.content|safe }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% empty %}
+                            <p class="empty-state">El contenido del curso estará disponible próximamente.</p>
+                            {% endfor %}
+                        </div>
+                    </section>
+
+                    {% if files %}
+                    <section class="detail-section">
+                        <h2><i class="fas fa-folder-open"></i> Archivos del curso</h2>
+                        <div class="files-list">
+                            {% for file in files %}
+                            <div class="file-item-detail">
+                                <div class="file-icon"><i class="fas fa-file-download"></i></div>
+                                <div class="file-info">
+                                    <h4>{{ file.title }}</h4>
+                                    <span class="file-date">Subido {{ file.uploaded_at|date:"d/m/Y" }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </section>
+                    {% endif %}
+                </div>
+
+                <aside class="course-detail-sidebar">
+                    <div class="sidebar-card">
+                        <h3>Información del curso</h3>
+                        <ul class="sidebar-info-list">
+                            <li>
+                                <i class="fas fa-signal"></i>
+                                <span>Nivel</span>
+                                <strong>{{ course.get_level_display }}</strong>
+                            </li>
+                            <li>
+                                <i class="fas fa-clock"></i>
+                                <span>Duración</span>
+                                <strong>{{ course.duration }}</strong>
+                            </li>
+                            <li>
+                                <i class="fas fa-file-alt"></i>
+                                <span>Exámenes</span>
+                                <strong>{{ exams|length }}</strong>
+                            </li>
+                            {% if exams %}
+                            <li>
+                                <i class="fas fa-check-circle"></i>
+                                <span>Puntaje mínimo</span>
+                                <strong>{{ exams.0.passing_score }}%</strong>
+                            </li>
+                            <li>
+                                <i class="fas fa-hourglass-half"></i>
+                                <span>Tiempo límite</span>
+                                <strong>{{ exams.0.time_limit_minutes }} min</strong>
+                            </li>
+                            {% endif %}
+                            <li>
+                                <i class="fas fa-cube"></i>
+                                <span>Módulos</span>
+                                <strong>{{ contents|length }}</strong>
+                            </li>
+                            {% if questions_count %}
+                            <li>
+                                <i class="fas fa-question-circle"></i>
+                                <span>Preguntas totales</span>
+                                <strong>{{ questions_count }}</strong>
+                            </li>
+                            {% endif %}
+                            {% if files %}
+                            <li>
+                                <i class="fas fa-folder-open"></i>
+                                <span>Archivos</span>
+                                <strong>{{ files|length }}</strong>
+                            </li>
+                            {% endif %}
+                        </ul>
+                        <button class="cta-final-btn sidebar-cta" onclick="showEnrollmentForm()">
+                            <i class="fas fa-graduation-cap"></i> Inscribirme ahora
+                        </button>
+                    </div>
+
+                    {% if exams %}
+                    <div class="sidebar-card">
+                        <h3>Evaluaciones</h3>
+                        {% for exam in exams %}
+                        <div class="exam-item">
+                            <div class="exam-icon"><i class="fas fa-file-signature"></i></div>
+                            <div class="exam-info">
+                                <h4>{{ exam.title }}</h4>
+                                <p>{{ exam.passing_score }}% para aprobar · {{ exam.time_limit_minutes }} min</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </aside>
+            </div>
+        </div>
+    </main>
+    <div id="enrollment-modal"></div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-brand">
+                <div class="logo">
+                    <i class="fas fa-graduation-cap"></i> Learn<span>Hub</span>
+                </div>
+                <p>La plataforma de aprendizaje que transforma carreras. Aprende las habilidades del futuro hoy.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+            <div class="footer-links">
+                <div class="footer-column">
+                    <h4>Platform</h4>
+                    <a href="{% url 'index' %}#cursos">Cursos</a>
+                    <a href="#">Precios</a>
+                    <a href="#">Para empresas</a>
+                    <a href="#">Para universidades</a>
+                </div>
+                <div class="footer-column">
+                    <h4>Empresa</h4>
+                    <a href="#">Sobre nosotros</a>
+                    <a href="#">Carreras</a>
+                    <a href="#">Blog</a>
+                    <a href="#">Prensa</a>
+                </div>
+                <div class="footer-column">
+                    <h4>Soporte</h4>
+                    <a href="#">Centro de ayuda</a>
+                    <a href="#">Contacto</a>
+                    <a href="#">Términos</a>
+                    <a href="#">Privacidad</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 LearnHub. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="{% static 'enrollment/js/script.js' %}"></script>
+    <script src="{% static 'enrollment/js/code-runner.js' %}"></script>
+    <script src="{% static 'enrollment/js/console.js' %}"></script>
+</body>
+</html>
