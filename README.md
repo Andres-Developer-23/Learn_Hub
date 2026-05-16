@@ -1,104 +1,163 @@
 # Learn Hub
 
-Plataforma educativa desarrollada en Django para la gestión de cursos, estudiantes y evaluaciones. Incluye panel de administración, portal de estudiantes y terminal Python interactiva.
+Plataforma educativa integral para la gestión de cursos, estudiantes y evaluaciones, construida con Django. Ofrece un panel administrativo completo, un portal interactivo para estudiantes y una terminal Python integrada en el navegador.
 
 ## Características
 
-- Landing pública con catálogo de cursos
-- Inscripción de estudiantes con aprobación manual
-- Panel de administración con dashboard de estadísticas
-- Gestión completa de cursos (CRUD) con niveles y contenidos
-- Exámenes y evaluaciones por curso
-- Portal de estudiantes con dashboard personalizado
-- Terminal Python interactiva integrada en el navegador
-- Sistema de notificaciones
-- Integración con Gmail API para envío de correos
-- Exportación de datos a CSV
+- **Catálogo público de cursos** — Landing page con listado, detalle y previsualización de cursos
+- **Inscripción con flujo de aprobación** — Los administradores revisan y aceptan/rechazan solicitudes
+- **Panel administrativo** — Dashboard con estadísticas, gestión de cursos (CRUD), estudiantes y notificaciones
+- **Portal de estudiantes** — Dashboard personalizado, examenes por curso, actualización de perfil
+- **Terminal Python interactiva** — Consola Python en el navegador, integrada con el portal
+- **Sistema de notificaciones** — Centro de notificaciones para administradores
+- **Integración con Gmail API** — Envío automatizado de correos mediante OAuth2
+- **Exportación a CSV** — Descarga de datos de estudiantes
+
+## Stack Tecnológico
+
+| Tecnología | Versión |
+|---|---|
+| Django | 6.0.5 |
+| Python | 3.x |
+| SQLite | — |
+| Gmail API | Google OAuth2 |
+| HTML5 / CSS3 / JavaScript | — |
 
 ## Estructura del Proyecto
 
 ```
 Learn_Hub/
 ├── ai_project/              # Configuración principal de Django
-├── email_service/           # Servicio de correo (Gmail API)
-├── enrollment/              # App de inscripciones y cursos
-│   ├── models.py            # Student, Course, Exam, Content, etc.
+├── email_service/           # Servicio de correo (Gmail API OAuth2)
+├── enrollment/              # Inscripciones, cursos y contenidos
+│   ├── models.py            # Student, Course, Exam, Content, EnrollmentRequest
 │   ├── views.py             # Landing, detalle de curso, preview
-│   └── templatetags/        # Tags personalizados
+│   └── templatetags/        # Tags personalizados para templates
 ├── panel/                   # Panel de administración
-│   ├── views.py             # Dashboard, CRUD cursos, estudiantes
-│   └── templates/           # Interfaz del panel
+│   ├── views.py             # Dashboard, CRUD de cursos y estudiantes
+│   └── templates/panel/     # Templates del panel
 ├── student_portal/          # Portal de estudiantes
 │   ├── views.py             # Dashboard, exámenes, perfil
-│   └── templates/           # Interfaz del portal
-├── terminal/                # Terminal Python interactiva
+│   └── templates/student_portal/
+├── terminal/                # Terminal Python interactiva en el navegador
 ├── notificaciones/          # Sistema de notificaciones
-├── media/                   # Archivos subidos (imágenes, etc.)
-├── manage.py                # Utilidad de Django
-└── requirements.txt         # Dependencias
+├── media/                   # Archivos subidos (imágenes de perfil, etc.)
+├── manage.py                # CLI de Django
+└── requirements.txt         # Dependencias del proyecto
 ```
-
-## Tecnologías
-
-- **Framework**: Django 6.0.5
-- **Base de datos**: SQLite (desarrollo)
-- **Python**: 3.x
-- **API de correo**: Gmail API (Google OAuth2)
-- **Frontend**: HTML5, CSS3, JavaScript
 
 ## Instalación
 
-1. Clonar el repositorio:
+### Requisitos previos
+
+- Python 3.10 o superior
+- pip
+- Git
+
+### Pasos
+
 ```bash
+# Clonar el repositorio
 git clone https://github.com/Andres-Developer-23/Learn_Hub.git
 cd Learn_Hub
-```
 
-2. Crear entorno virtual:
-```bash
+# Crear y activar entorno virtual
 python -m venv venv
-venv\Scripts\activate   # Windows
-source venv/bin/activate # Linux/Mac
-```
 
-3. Instalar dependencias:
-```bash
+# Windows
+venv\Scripts\activate
+# Linux / macOS
+source venv/bin/activate
+
+# Instalar dependencias
 pip install -r requirements.txt
-```
 
-4. Ejecutar migraciones:
-```bash
+# Ejecutar migraciones
 python manage.py migrate
-```
 
-5. Crear superusuario:
-```bash
+# Crear superusuario
 python manage.py createsuperuser
-```
 
-6. Iniciar servidor:
-```bash
+# Iniciar servidor de desarrollo
 python manage.py runserver
 ```
 
-## Uso del Sistema
+### Configuración de Gmail API (opcional)
 
-### Landing y Cursos
-- `/` - Catálogo público de cursos
-- `/curso/<id>/` - Detalle y previsualización del curso
+1. Crear un proyecto en [Google Cloud Console](https://console.cloud.google.com/)
+2. Habilitar la Gmail API
+3. Descargar las credenciales OAuth2 y guardarlas como `client_secret.json`
+4. Ejecutar el servidor — el token se generará automáticamente al enviar el primer correo
+
+## Rutas del Sistema
+
+### Públicas
+| Ruta | Descripción |
+|---|---|
+| `/` | Catálogo de cursos |
+| `/curso/<id>/` | Detalle y previsualización del curso |
 
 ### Panel de Administración
-- `/panel/login/` - Inicio de sesión
-- `/panel/` - Dashboard con estadísticas
-- `/panel/cursos/` - Gestión de cursos (crear, editar, eliminar)
-- `/panel/estudiantes/` - Gestión de estudiantes
-- `/panel/notificaciones/` - Centro de notificaciones
+| Ruta | Descripción |
+|---|---|
+| `/panel/login/` | Inicio de sesión |
+| `/panel/` | Dashboard con estadísticas |
+| `/panel/cursos/` | Gestión de cursos |
+| `/panel/estudiantes/` | Gestión de estudiantes |
+| `/panel/notificaciones/` | Centro de notificaciones |
 
 ### Portal de Estudiantes
-- `/estudiante/login/` - Inicio de sesión
-- `/estudiante/` - Dashboard del estudiante
-- `/estudiante/examen/<id>/` - Evaluación del curso
-- `/estudiante/python/` - Terminal Python interactiva
+| Ruta | Descripción |
+|---|---|
+| `/estudiante/login/` | Inicio de sesión |
+| `/estudiante/` | Dashboard del estudiante |
+| `/estudiante/examen/<id>/` | Evaluación del curso |
+| `/estudiante/python/` | Terminal Python interactiva |
 
 ### Terminal
-- `/terminal/` - Terminal Python interactiva
+| Ruta | Descripción |
+|---|---|
+| `/terminal/` | Consola Python en el navegador |
+
+## Modelos Principales
+
+### Student
+| Campo | Tipo | Descripción |
+|---|---|---|
+| user | OneToOneField | Usuario de Django asociado |
+| name | CharField | Nombre completo |
+| email | EmailField | Correo electrónico (único) |
+| level | CharField | Nivel: principiante, intermedio, avanzado |
+| status | CharField | Estado: pending, accepted, rejected |
+| created_at | DateTimeField | Fecha de registro |
+
+### Course
+| Campo | Tipo | Descripción |
+|---|---|---|
+| title | CharField | Título del curso |
+| description | TextField | Descripción |
+| level | CharField | Nivel del curso |
+| image | ImageField | Imagen de portada |
+| instructor | CharField | Nombre del instructor |
+| created_at | DateTimeField | Fecha de creación |
+
+### Exam
+| Campo | Tipo | Descripción |
+|---|---|---|
+| course | ForeignKey | Curso asociado |
+| title | CharField | Título del examen |
+| questions | JSONField | Preguntas y respuestas |
+| passing_score | IntegerField | Puntaje mínimo para aprobar |
+| time_limit | IntegerField | Límite de tiempo en minutos |
+
+## Flujo de Inscripción
+
+1. El estudiante se registra a través del formulario público
+2. La solicitud queda en estado **pendiente**
+3. El administrador revisa la solicitud desde el panel
+4. Al aceptar, se crea automáticamente un usuario de Django
+5. El estudiante recibe sus credenciales y accede al portal
+
+## Licencia
+
+Este proyecto es de uso educativo y privado.
