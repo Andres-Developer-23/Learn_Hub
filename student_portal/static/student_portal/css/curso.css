@@ -263,3 +263,67 @@ body {
     .exam-card { flex-wrap: wrap; }
     .exam-btn { width: 100%; text-align: center; }
 }
+
+/* Syntax Highlighting - Code Blocks */
+.content-text pre {
+    margin: 0.8rem 0;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--card-border);
+}
+
+.content-text pre code {
+    display: block;
+    padding: 1rem 1.2rem;
+    background: #282c34 !important;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', monospace;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    overflow-x: auto;
+    tab-size: 4;
+}
+
+/* Override highlight.js theme for dark mode */
+.content-text pre .hljs {
+    background: #282c34 !important;
+    padding: 0 !important;
+}
+
+.content-text pre .hljs-keyword { color: #c678dd; }
+.content-text pre .hljs-string { color: #98c379; }
+.content-text pre .hljs-comment { color: #5c6370; font-style: italic; }
+.content-text pre .hljs-function { color: #61afef; }
+.content-text pre .hljs-number { color: #d19a66; }
+.content-text pre .hljs-built_in { color: #e5c07b; }
+.content-text pre .hljs-class { color: #e5c07b; }
+.content-text pre .hljs-title { color: #e5c07b; }
+.content-text pre .hljs-params { color: #abb2bf; }
+.content-text pre .hljs-meta { color: #5c6370; }
+.content-text pre .hljs-operator { color: #56b6c2; }
+.content-text pre .hljs-decorator { color: #d19a66; }
+.content-text pre .hljs-variable { color: #e06c75; }
+.content-text pre .hljs-property { color: #e06c75; }
+
+/* Inline code */
+.content-text p code,
+.content-text li code,
+.content-text td code {
+    background: rgba(96, 165, 250, 0.1);
+    color: var(--accent);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.85em;
+}
+
+/* Code runner compatibility */
+.code-runner-wrapper {
+    margin: 0.8rem 0 !important;
+    border: 1px solid var(--card-border) !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+}
+
+.code-runner-wrapper pre code {
+    background: #282c34 !important;
+}
