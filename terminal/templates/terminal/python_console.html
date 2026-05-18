@@ -68,7 +68,7 @@
         <span><span class="status-dot online"></span><span id="conn-status">Iniciando...</span></span>
         <div class="statusbar-right">
             <span id="line-count">0 líneas</span>
-            <span>Pyodide v0.25.0</span>
+            <span>Pyodide v0.27.0</span>
         </div>
     </div>
 
@@ -102,7 +102,10 @@
                 editor.style.fontSize = px + 'px';
                 output.style.fontSize = px + 'px';
                 lineNums.style.fontSize = px + 'px';
-                document.querySelector('.panel-header').style.fontSize = '0.7rem';
+                var headers = document.querySelectorAll('.panel-header');
+                for (var i = 0; i < headers.length; i++) {
+                    headers[i].style.fontSize = '0.7rem';
+                }
             }
 
             // ─── Line numbers ────────────────────────────
@@ -207,14 +210,13 @@
                 if (window.__pyodideReady) return window.__pyodideReady;
                 return new Promise(function (resolve, reject) {
                     var s = document.createElement('script');
-                    s.src = 'https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js';
+                    s.src = 'https://cdn.jsdelivr.net/pyodide/v0.27.0/full/pyodide.js';
                     s.onload = function () {
                         loadStep.textContent = 'Compilando Python en WebAssembly...';
-                        loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.25.0/full/' })
+                        loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.27.0/full/' })
                             .then(function (py) {
                                 window.__pyodide = py;
                                 window.__pyodideReady = Promise.resolve(py);
-                                // Override input() to use browser prompt dialog
                                 py.runPython(
                                     'import js\n' +
                                     'def _input(prompt_text=""):\n' +
@@ -257,7 +259,6 @@
                 try {
                     var py = await getPy();
 
-                    // Auto-install packages
                     var checks = {pandas:'pandas',numpy:'numpy','sklearn.':'scikit-learn',sklearn:'scikit-learn',
                         matplotlib:'matplotlib',seaborn:'seaborn',PIL:'pillow'};
                     var needs = [];
@@ -269,31 +270,75 @@
                         try { await py.loadPackage(needs[i]); } catch (e) {}
                     }
 
-                    await py.runPython('import sys,io; _b=io.StringIO(); sys.stdout=_b; sys.stderr=_b');
-                    var outputText = '';
+                    var stdoutBuf = py.runPython('import io; _stdout_buf = io.StringIO()');
+                    var stderrBuf = py.runPython('_stderr_buf = io.StringIO()');
+                    await py.runPython(
+                        'import sys\n' +
+                        'class _DualWriter:\n' +
+                        '    def __init__(self, std, buf):\n' +
+                        '        self.std = std\n' +
+                        '        self.buf = buf\n' +
+                        '    def write(self, text):\n' +
+                        '        self.buf.write(text)\n' +
+                        '        return self.std.write(text)\n' +
+                        '    def flush(self):\n' +
+                        '        self.std.flush()\n' +
+                        '        self.buf.flush()\n' +
+                        'sys.stdout = _DualWriter(sys.__stdout__, _stdout_buf)\n' +
+                        'sys.stderr = _DualWriter(sys.__stderr__, _stderr_buf)\n'
+                    );
+
+                    var pyError = null;
                     try {
                         await py.runPython(code);
-                        outputText = await py.runPython('_b.getvalue()');
                     } catch (pyErr) {
-                        try { outputText = await py.runPython('_b.getvalue()'); } catch (e2) {}
-                        var msg = pyErr.message || String(pyErr);
-                        msg = msg.replace(/^PythonError:\s*/, '');
-                        outputText += (outputText ? '\n' : '') + msg;
+                        pyError = pyErr.message || String(pyErr);
+                        pyError = pyError.replace(/^PythonError:\s*/, '');
                     }
-                    try { await py.runPython('sys.stdout=sys.__stdout__; sys.stderr=sys.__stderr__; _b.close()'); } catch (e) {}
+
+                    var stdoutText = '';
+                    var stderrText = '';
+                    try { stdoutText = py.runPython('_stdout_buf.getvalue()'); } catch (e) {}
+                    try { stderrText = py.runPython('_stderr_buf.getvalue()'); } catch (e) {}
+
+                    if (pyError) {
+                        stderrText += (stderrText ? '\n' : '') + pyError;
+                    }
+
+                    try {
+                        py.runPython(
+                            'import sys\n' +
+                            'sys.stdout = sys.__stdout__\n' +
+                            'sys.stderr = sys.__stderr__\n' +
+                            '_stdout_buf.close()\n' +
+                            '_stderr_buf.close()\n' +
+                            'del _stdout_buf, _stderr_buf, _DualWriter\n'
+                        );
+                    } catch (e) {}
 
                     var elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
 
-                    if (outputText && outputText.trim()) {
-                        var lines = outputText.split('\n');
+                    var hasOutput = false;
+                    if (stdoutText && stdoutText.trim()) {
+                        hasOutput = true;
+                        var lines = stdoutText.split('\n');
                         for (var j = 0; j < lines.length; j++) {
                             var l = lines[j];
                             if (!l.trim() && lines.length > 1) continue;
-                            var isErr = /(Error|Traceback|SyntaxError|NameError|TypeError|ValueError|ModuleNotFound|ImportError|Exception|FileNotFound|KeyError|IndexError|AttributeError|ZeroDivisionError)/.test(l);
                             var suffix = (j === lines.length - 1 ? '<span class="elapsed">' + elapsed + 's</span>' : '');
-                            addOut(esc(l) + suffix, isErr ? 'stderr' : 'stdout');
+                            addOut(esc(l) + suffix, 'stdout');
                         }
-                    } else {
+                    }
+                    if (stderrText && stderrText.trim()) {
+                        hasOutput = true;
+                        var errLines = stderrText.split('\n');
+                        for (var m = 0; m < errLines.length; m++) {
+                            var el = errLines[m];
+                            if (!el.trim() && errLines.length > 1) continue;
+                            addOut(esc(el), 'stderr');
+                        }
+                    }
+                    if (!hasOutput) {
                         addOut('<span style="color:var(--comment);font-style:italic">(sin salida)</span> <span class="elapsed">' + elapsed + 's</span>', '');
                     }
                 } catch (err) {

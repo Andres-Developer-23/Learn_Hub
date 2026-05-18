@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'enrollment',
     'panel',
     'student_portal',
-    'terminal',
+    'terminal.apps.TerminalConfig',
     'notificaciones',
     'email_service',
 ]
