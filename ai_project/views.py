@@ -1,7 +1,5 @@
 from django.contrib.auth.views import PasswordResetView
-from django.contrib.auth.tokens import default_token_generator
-from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_encode
+from django.contrib.auth.forms import PasswordResetForm
 from django.template import loader
 from email_service.services import send_password_reset_email
 import logging
@@ -9,7 +7,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class GmailAPIPasswordResetView(PasswordResetView):
+class GmailAPIPasswordResetForm(PasswordResetForm):
     def send_mail(self, subject_template_name, email_template_name,
                   context, from_email, to_email,
                   html_email_template_name=None):
@@ -22,3 +20,7 @@ class GmailAPIPasswordResetView(PasswordResetView):
         if not sent:
             logger.error(f"Fallo al enviar correo de recuperación a {to_email}")
         return sent
+
+
+class GmailAPIPasswordResetView(PasswordResetView):
+    form_class = GmailAPIPasswordResetForm
