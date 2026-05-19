@@ -1,27 +1,35 @@
 # Learn Hub
 
+> Plataforma educativa para gestión de cursos y estudiantes
+
 Plataforma educativa integral para la gestión de cursos, estudiantes y evaluaciones, construida con Django. Ofrece un panel administrativo completo, un portal interactivo para estudiantes y una terminal Python integrada en el navegador.
+
+🌐 **Demo en vivo**: https://learn-hub-bhxvd.ondigitalocean.app
 
 ## Características
 
 - **Catálogo público de cursos** — Landing page con listado, detalle y previsualización de cursos
 - **Inscripción con flujo de aprobación** — Los administradores revisan y aceptan/rechazan solicitudes
 - **Panel administrativo** — Dashboard con estadísticas, gestión de cursos (CRUD), estudiantes y notificaciones
-- **Portal de estudiantes** — Dashboard personalizado, examenes por curso, actualización de perfil
+- **Portal de estudiantes** — Dashboard personalizado, exámenes por curso, actualización de perfil
 - **Terminal Python interactiva** — Consola Python en el navegador, integrada con el portal
 - **Sistema de notificaciones** — Centro de notificaciones para administradores
 - **Integración con Gmail API** — Envío automatizado de correos mediante OAuth2
 - **Exportación a CSV** — Descarga de datos de estudiantes
+- **Diseño responsive** — Interfaz adaptada para móviles, tablets y escritorio
 
 ## Stack Tecnológico
 
 | Tecnología | Versión |
 |---|---|
 | Django | 6.0.5 |
-| Python | 3.x |
-| SQLite | — |
+| Python | 3.14 |
+| PostgreSQL | 17 |
+| Gunicorn | — |
+| WhiteNoise | — |
 | Gmail API | Google OAuth2 |
 | HTML5 / CSS3 / JavaScript | — |
+| DigitalOcean App Platform | — |
 
 ## Estructura del Proyecto
 
@@ -50,9 +58,10 @@ Learn_Hub/
 
 ### Requisitos previos
 
-- Python 3.10 o superior
+- Python 3.14 o superior
 - pip
 - Git
+- PostgreSQL (para desarrollo local) o SQLite como alternativa
 
 ### Pasos
 
@@ -72,6 +81,9 @@ source venv/bin/activate
 # Instalar dependencias
 pip install -r requirements.txt
 
+# Configurar variables de entorno (ver .env.example)
+cp .env.example .env
+
 # Ejecutar migraciones
 python manage.py migrate
 
@@ -81,6 +93,16 @@ python manage.py createsuperuser
 # Iniciar servidor de desarrollo
 python manage.py runserver
 ```
+
+### Variables de Entorno
+
+| Variable | Descripción |
+|---|---|
+| `DATABASE_URL` | URL de conexión a PostgreSQL |
+| `SITE_URL` | URL base del sitio (ej. `https://learn-hub-bhxvd.ondigitalocean.app`) |
+| `ALLOWED_HOSTS` | Hosts permitidos (separados por coma) |
+| `GMAIL_API_TOKEN_JSON` | Token JSON de Gmail API para envío de correos |
+| `DEBUG` | `True` para desarrollo, `False` para producción |
 
 ### Configuración de Gmail API (opcional)
 
@@ -157,6 +179,13 @@ python manage.py runserver
 3. El administrador revisa la solicitud desde el panel
 4. Al aceptar, se crea automáticamente un usuario de Django
 5. El estudiante recibe sus credenciales y accede al portal
+
+## Seguridad
+
+- CSRF protegido con `CSRF_COOKIE_SECURE = True`
+- Sessions seguras con `SESSION_COOKIE_SECURE = True`
+- Enlaces de email generados dinámicamente desde `SITE_URL`
+- `DEBUG = False` en producción
 
 ## Licencia
 
