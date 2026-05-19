@@ -286,12 +286,14 @@ Equipo LearnHub"""
       </p>"""
 
     sender = getattr(settings, 'DEFAULT_FROM_EMAIL', 'LearnHub <noreply@learnhub.com>')
-    html_body = _build_html_template('&iexcl;Bienvenido a LearnHub!', content_html)
+    site_url = getattr(settings, 'SITE_URL', 'http://127.0.0.1:8000')
+    login_url = f'{site_url}/estudiante/login/'
+    html_body = _build_html_template('&iexcl;Bienvenido a LearnHub!', content_html.replace('http://127.0.0.1:8000/estudiante/login/', login_url))
 
     if getattr(settings, 'GMAIL_API_ENABLED', False):
         service = _get_gmail_service()
         if service:
-            return _send_via_gmail_api(service, sender, student.email, subject, text_body, html_body)
+            return _send_via_gmail_api(service, sender, student.email, subject, text_body.replace('http://127.0.0.1:8000/estudiante/login/', login_url), html_body)
 
     logger.warning("Gmail API no disponible, intentando con método alternativo")
     return False
@@ -409,12 +411,14 @@ Equipo LearnHub"""
       </p>"""
 
     sender = getattr(settings, 'DEFAULT_FROM_EMAIL', 'LearnHub <noreply@learnhub.com>')
-    html_body = _build_html_template('&iexcl;Inscripci&oacute;n Aprobada!', content_html)
+    site_url = getattr(settings, 'SITE_URL', 'http://127.0.0.1:8000')
+    login_url = f'{site_url}/estudiante/login/'
+    html_body = _build_html_template('&iexcl;Inscripci&oacute;n Aprobada!', content_html.replace('http://127.0.0.1:8000/estudiante/login/', login_url))
 
     if getattr(settings, 'GMAIL_API_ENABLED', False):
         service = _get_gmail_service()
         if service:
-            return _send_via_gmail_api(service, sender, student.email, subject, text_body, html_body)
+            return _send_via_gmail_api(service, sender, student.email, subject, text_body.replace('http://127.0.0.1:8000/estudiante/login/', login_url), html_body)
 
     logger.warning("Gmail API no disponible, intentando con método alternativo")
     return False
