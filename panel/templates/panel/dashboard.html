@@ -20,6 +20,7 @@
   <div class="ns">Principal</div>
   <a href="#sec-overview" class="ni active"><span class="ic">📊</span><span>Dashboard</span></a>
   <a href="#sec-students" class="ni"><span class="ic">👥</span><span>Estudiantes</span></a>
+  <a href="{% url 'instructor_list' %}" class="ni"><span class="ic">👨‍🏫</span><span>Instructores</span></a>
   <a href="{% url 'notifications_view' %}" class="ni"><span class="ic">🔔</span><span>Notificaciones</span>{% if total_pending > 0 %}<span class="sb-notif-badge">{{ total_pending }}</span>{% endif %}</a>
 
 

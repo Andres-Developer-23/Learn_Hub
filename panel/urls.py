@@ -37,4 +37,9 @@ urlpatterns = [
     path('notificaciones/', views.notifications_view, name='notifications_view'),
     path('inscripcion/<int:pk>/aceptar/', views.enrollment_accept, name='enrollment_accept'),
     path('inscripcion/<int:pk>/rechazar/', views.enrollment_reject, name='enrollment_reject'),
+
+    # Instructors
+    path('instructores/',                       views.instructor_list,   name='instructor_list'),
+    path('instructores/<int:pk>/editar/',       views.instructor_edit,   name='instructor_edit'),
+    path('instructores/<int:pk>/eliminar/',     views.instructor_delete, name='instructor_delete'),
 ]

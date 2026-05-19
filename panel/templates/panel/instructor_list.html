@@ -1,0 +1,204 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Instructores – LearnHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="{% static 'panel/css/dashboard.css' %}">
+</head>
+<body>
+
+<button class="hb" id="hb" aria-label="Menu">☰</button>
+<div class="sb-overlay" id="sb-overlay"></div>
+
+<aside class="sb" id="sidebar">
+  <div class="logo">Learn<span>Hub</span></div>
+  <div class="ns">Principal</div>
+  <a href="{% url 'admin_dashboard' %}" class="ni"><span class="ic">📊</span><span>Dashboard</span></a>
+  <a href="{% url 'instructor_list' %}" class="ni active"><span class="ic">👨‍🏫</span><span>Instructores</span></a>
+  <a href="{% url 'notifications_view' %}" class="ni"><span class="ic">🔔</span><span>Notificaciones</span></a>
+  <div class="ns">Acciones</div>
+  <a href="{% url 'course_list' %}" class="ni"><span class="ic">📚</span><span>Cursos</span></a>
+  <a href="{% url 'export_csv' %}" class="ni"><span class="ic">📥</span><span>Exportar CSV</span></a>
+  <a href="/" class="ni"><span class="ic">🌐</span><span>Ver sitio web</span></a>
+  <a href="/admin/" class="ni"><span class="ic">⚙️</span><span>Django Admin</span></a>
+  <div class="sf">
+    <div class="up">
+      <div class="av">{{ request.user.username|slice:":1"|upper }}</div>
+      <div class="ui"><strong>{{ request.user.username }}</strong><small>Administrador</small></div>
+    </div>
+    <a href="{% url 'admin_logout' %}" class="lb"><span class="ic">🚪</span><span>Cerrar sesión</span></a>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="tb">
+    <h1 class="pt">Gestión de <span>Instructores</span></h1>
+    <a href="#" class="ebtn" onclick="showCreateForm()">➕ Nuevo Instructor</a>
+  </div>
+
+  {% if messages %}
+  <div style="max-width:960px;margin:0 auto 1.5rem">
+    {% for m in messages %}
+    <div style="padding:0.75rem 1rem;border-radius:10px;margin-bottom:0.5rem;font-size:0.85rem;font-weight:600;{% if m.tags == 'success' %}background:rgba(34,197,94,0.1);color:#4ade80;border:1px solid rgba(34,197,94,0.15){% else %}background:rgba(244,63,94,0.1);color:#f87171;border:1px solid rgba(244,63,94,0.15){% endif %}">
+        {{ m }}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="tc" style="max-width:960px">
+    <div class="th"><span class="tt">Listado de Instructores</span></div>
+    <table>
+      <thead><tr><th>#</th><th>Nombre / Correo</th><th>Usuario</th><th>Bio</th><th>Acciones</th></tr></thead>
+      <tbody>
+        {% for inst in instructors %}
+        <tr>
+          <td>{{ inst.pk }}</td>
+          <td><strong>{{ inst.name }}</strong><br><small style="color:var(--mu)">{{ inst.email }}</small></td>
+          <td>{% if inst.user %}<span style="font-family:monospace;color:var(--acc)">{{ inst.user.username }}</span>{% else %}<span style="color:var(--mu)">—</span>{% endif %}</td>
+          <td><span style="color:var(--mu);font-size:0.82rem">{{ inst.bio|truncatechars:60|default:"—" }}</span></td>
+          <td>
+            <a href="{% url 'instructor_edit' inst.pk %}" class="actb btn-ed">✏️ Editar</a>
+            <form method="POST" action="{% url 'instructor_delete' inst.pk %}" class="del-form" style="display:inline">
+              {% csrf_token %}
+              <button class="actb btn-dl" type="submit">🗑️</button>
+            </form>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" style="text-align:center;color:var(--mu);padding:3rem">No hay instructores registrados.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if edit_instructor %}
+  <div class="mo open" id="edit-mo">
+  {% else %}
+  <div class="mo" id="edit-mo">
+  {% endif %}
+    <div class="mbox" style="max-width:480px">
+      <div class="mt" id="modal-title">✏️ Editar Instructor</div>
+      <form method="POST" action="">
+        {% csrf_token %}
+        <div class="mf"><label>Nombre completo</label><input type="text" name="name" id="in-name" value="{{ edit_instructor.name|default:'' }}" required></div>
+        <div class="mf"><label>Correo electrónico</label><input type="email" name="email" id="in-email" value="{{ edit_instructor.email|default:'' }}" required></div>
+        <div class="mf"><label>Contraseña <small style="color:var(--mu)">(dejar vacío para no cambiar)</small></label><input type="password" name="password" id="in-password" placeholder="••••••••"></div>
+        <div class="mf"><label>Biografía</label><textarea name="bio" id="in-bio" rows="3" style="resize:vertical">{{ edit_instructor.bio|default:'' }}</textarea></div>
+        <div class="ma">
+          <a href="{% url 'instructor_list' %}" class="bcn">Cancelar</a>
+          <button class="bsv" type="submit">💾 Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="mo" id="create-mo">
+    <div class="mbox" style="max-width:480px">
+      <div class="mt">➕ Nuevo Instructor</div>
+      <form method="POST" action="{% url 'instructor_list' %}">
+        {% csrf_token %}
+        <div class="mf"><label>Nombre completo</label><input type="text" name="name" required placeholder="Ej: Juan Pérez"></div>
+        <div class="mf"><label>Correo electrónico</label><input type="email" name="email" required placeholder="ejemplo@correo.com"></div>
+        <div class="mf"><label>Contraseña <small style="color:var(--mu)">(opcional, se genera automáticamente si se deja vacío)</small></label><input type="password" name="password" placeholder="••••••••"></div>
+        <div class="mf"><label>Biografía</label><textarea name="bio" rows="3" style="resize:vertical" placeholder="Breve descripción del instructor"></textarea></div>
+        <div class="ma">
+          <button type="button" class="bcn" onclick="closeCreateForm()">Cancelar</button>
+          <button class="bsv" type="submit">💾 Crear Instructor</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="mo" id="del-mo">
+    <div class="mbox">
+      <div class="mt">🗑️ Confirmar eliminación</div>
+      <p style="color:var(--mu);font-size:.88rem;margin-bottom:1.25rem">¿Seguro que deseas eliminar este instructor? También se eliminará su usuario. Esta acción no se puede deshacer.</p>
+      <div class="ma"><button class="bcn close-btn">Cancelar</button><button class="bsv bsv-red confirm-del-btn">🗑️ Sí, eliminar</button></div>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const hb = document.getElementById('hb');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sb-overlay');
+
+    function openSb() { sidebar.classList.add('open'); overlay.classList.add('open'); }
+    function closeSb() { sidebar.classList.remove('open'); overlay.classList.remove('open'); }
+    if (hb) hb.addEventListener('click', function() {
+        sidebar.classList.contains('open') ? closeSb() : openSb();
+    });
+    if (overlay) overlay.addEventListener('click', closeSb);
+
+    document.querySelectorAll('a.ni').forEach(function(link) {
+        link.addEventListener('click', function() {
+            if (window.innerWidth <= 900) closeSb();
+        });
+    });
+
+    let deleteCurId = null;
+    const CSRF = '{{ csrf_token }}';
+
+    document.querySelectorAll('.del-form').forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const row = this.closest('tr');
+            if (row) deleteCurId = row.getAttribute('data-id') || this.getAttribute('action').split('/').filter(Boolean).pop();
+            document.getElementById('del-mo').classList.add('open');
+            window._delForm = this;
+        });
+    });
+
+    document.querySelector('.confirm-del-btn').addEventListener('click', function() {
+        const delForm = window._delForm;
+        if (!delForm) { closeMo(); return; }
+        const url = delForm.getAttribute('action');
+        const csrf = delForm.querySelector('[name=csrfmiddlewaretoken]').value;
+        const row = delForm.closest('tr');
+        fetch(url, {method:'POST', headers:{'X-CSRFToken':csrf, 'X-Requested-With':'XMLHttpRequest'}})
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            if(d.status==='success'){
+                closeMo();
+                if (row) row.remove();
+                showToast('🗑️ Instructor eliminado');
+            }
+        });
+    });
+
+    document.querySelectorAll('.close-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() { closeMo(); });
+    });
+    document.querySelectorAll('.mo').forEach(function(m) {
+        m.addEventListener('click', function(e) { if(e.target===m && !m.classList.contains('open-static')) closeMo(); });
+    });
+
+    function closeMo() { document.querySelectorAll('.mo').forEach(function(m) { m.classList.remove('open'); }); }
+
+    function showToast(msg, type) {
+        if (!type) type='ok';
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.className = 'toast ' + type + ' show';
+        setTimeout(function() { t.className = 'toast'; }, 3000);
+    }
+});
+
+function showCreateForm() {
+    event.preventDefault();
+    document.getElementById('create-mo').classList.add('open');
+}
+
+function closeCreateForm() {
+    document.getElementById('create-mo').classList.remove('open');
+}
+</script>
+</body>
+</html>

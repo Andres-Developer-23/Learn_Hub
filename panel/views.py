@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
 from django.contrib import messages
@@ -9,7 +10,7 @@ from django.core.paginator import Paginator
 from django.utils import timezone
 from datetime import timedelta
 import csv, json
-from enrollment.models import Student, Course, CourseContent, Exam, Question, QuestionOption, CourseFile, EnrollmentRequest
+from enrollment.models import Student, Course, CourseContent, Exam, Question, QuestionOption, CourseFile, EnrollmentRequest, Instructor
 from notificaciones.models import Notification
 
 
@@ -471,4 +472,111 @@ def enrollment_reject(request, pk):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({'status': 'success'})
         return redirect('notifications_view')
+    return JsonResponse({'status': 'error'}, status=405)
+
+
+# ─── Instructors ─────────────────────────────────────────────────────────────
+
+@login_required(login_url='admin_login')
+@never_cache
+def instructor_list(request):
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        email = request.POST.get('email', '').strip()
+        bio = request.POST.get('bio', '').strip()
+        password = request.POST.get('password', '').strip()
+
+        if not name or not email:
+            messages.error(request, 'Nombre y correo son obligatorios.')
+            return redirect('instructor_list')
+
+        if Instructor.objects.filter(email=email).exists():
+            messages.error(request, 'Ya existe un instructor con ese correo.')
+            return redirect('instructor_list')
+
+        if User.objects.filter(email=email).exists():
+            messages.error(request, 'Ya existe un usuario con ese correo.')
+            return redirect('instructor_list')
+
+        if not password:
+            password = User.objects.make_random_password(length=10)
+
+        base_username = email.split('@')[0].lower().replace('.', '_')
+        username = base_username
+        counter = 1
+        while User.objects.filter(username=username).exists():
+            username = f"{base_username}{counter}"
+            counter += 1
+
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password,
+            first_name=name.split()[0],
+            last_name=' '.join(name.split()[1:]) if len(name.split()) > 1 else '',
+        )
+        Instructor.objects.create(user=user, name=name, email=email, bio=bio)
+        messages.success(request, f'Instructor creado. Usuario: {username}, Contraseña: {password}')
+        return redirect('instructor_list')
+
+    instructors = Instructor.objects.select_related('user').all().order_by('-created_at')
+    return render(request, 'panel/instructor_list.html', {'instructors': instructors})
+
+
+@login_required(login_url='admin_login')
+@never_cache
+def instructor_edit(request, pk):
+    instructor = get_object_or_404(Instructor, pk=pk)
+
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        email = request.POST.get('email', '').strip()
+        bio = request.POST.get('bio', '').strip()
+        new_password = request.POST.get('password', '').strip()
+
+        if not name or not email:
+            messages.error(request, 'Nombre y correo son obligatorios.')
+            return redirect('instructor_edit', pk=pk)
+
+        email_exists = Instructor.objects.filter(email=email).exclude(pk=pk).exists()
+        if email_exists:
+            messages.error(request, 'Ya existe otro instructor con ese correo.')
+            return redirect('instructor_edit', pk=pk)
+
+        instructor.name = name
+        instructor.email = email
+        instructor.bio = bio
+        instructor.save()
+
+        if instructor.user:
+            if email != instructor.user.email:
+                instructor.user.email = email
+            instructor.user.first_name = name.split()[0]
+            instructor.user.last_name = ' '.join(name.split()[1:]) if len(name.split()) > 1 else ''
+            if new_password:
+                instructor.user.set_password(new_password)
+            instructor.user.save()
+
+        messages.success(request, 'Instructor actualizado.')
+        return redirect('instructor_list')
+
+    return render(request, 'panel/instructor_list.html', {
+        'instructors': Instructor.objects.select_related('user').all().order_by('-created_at'),
+        'edit_instructor': instructor,
+    })
+
+
+@login_required(login_url='admin_login')
+@never_cache
+def instructor_delete(request, pk):
+    if request.method == 'POST':
+        instructor = get_object_or_404(Instructor, pk=pk)
+        user = instructor.user
+        instructor.delete()
+        if user:
+            user.delete()
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'success'})
+        messages.success(request, 'Instructor eliminado.')
+        return redirect('instructor_list')
     return JsonResponse({'status': 'error'}, status=405)
