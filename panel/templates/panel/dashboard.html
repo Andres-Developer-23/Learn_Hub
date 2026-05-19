@@ -80,6 +80,25 @@
           {% empty %}<tr><td colspan="6" style="text-align:center;color:var(--mu);padding:3rem">Sin estudiantes registrados.</td></tr>{% endfor %}
         </tbody>
       </table>
+      {% if students.paginator.num_pages > 1 %}
+      <div class="pagination">
+        {% if students.has_previous %}
+          <a href="?page=1#sec-students" class="page-link">&laquo;</a>
+          <a href="?page={{ students.previous_page_number }}#sec-students" class="page-link">&lsaquo;</a>
+        {% endif %}
+        {% for n in students.paginator.page_range|slice:':5' %}
+          <a href="?page={{ n }}#sec-students" class="page-link {% if n == students.number %}active{% endif %}">{{ n }}</a>
+        {% endfor %}
+        {% if students.paginator.num_pages > 5 %}
+          <span class="page-link page-dots">...</span>
+          <a href="?page={{ students.paginator.num_pages }}#sec-students" class="page-link">{{ students.paginator.num_pages }}</a>
+        {% endif %}
+        {% if students.has_next %}
+          <a href="?page={{ students.next_page_number }}#sec-students" class="page-link">&rsaquo;</a>
+          <a href="?page={{ students.paginator.num_pages }}#sec-students" class="page-link">&raquo;</a>
+        {% endif %}
+      </div>
+      {% endif %}
     </div>
   </div>
 

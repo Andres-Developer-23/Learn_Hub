@@ -203,6 +203,25 @@
       </div>
     </div>
     {% endfor %}
+    {% if unread_notifications.paginator.num_pages > 1 %}
+    <div class="pagination">
+      {% if unread_notifications.has_previous %}
+        <a href="?page=1" class="page-link">&laquo;</a>
+        <a href="?page={{ unread_notifications.previous_page_number }}" class="page-link">&lsaquo;</a>
+      {% endif %}
+      {% for n in unread_notifications.paginator.page_range|slice:':5' %}
+        <a href="?page={{ n }}" class="page-link {% if n == unread_notifications.number %}active{% endif %}">{{ n }}</a>
+      {% endfor %}
+      {% if unread_notifications.paginator.num_pages > 5 %}
+        <span class="page-link page-dots">...</span>
+        <a href="?page={{ unread_notifications.paginator.num_pages }}" class="page-link">{{ unread_notifications.paginator.num_pages }}</a>
+      {% endif %}
+      {% if unread_notifications.has_next %}
+        <a href="?page={{ unread_notifications.next_page_number }}" class="page-link">&rsaquo;</a>
+        <a href="?page={{ unread_notifications.paginator.num_pages }}" class="page-link">&raquo;</a>
+      {% endif %}
+    </div>
+    {% endif %}
     {% endif %}
   </div>
 
@@ -227,6 +246,25 @@
       </div>
     </div>
     {% endfor %}
+    {% if read_notifications.paginator.num_pages > 1 %}
+    <div class="pagination">
+      {% if read_notifications.has_previous %}
+        <a href="?rpage=1" class="page-link">&laquo;</a>
+        <a href="?rpage={{ read_notifications.previous_page_number }}" class="page-link">&lsaquo;</a>
+      {% endif %}
+      {% for n in read_notifications.paginator.page_range|slice:':5' %}
+        <a href="?rpage={{ n }}" class="page-link {% if n == read_notifications.number %}active{% endif %}">{{ n }}</a>
+      {% endfor %}
+      {% if read_notifications.paginator.num_pages > 5 %}
+        <span class="page-link page-dots">...</span>
+        <a href="?rpage={{ read_notifications.paginator.num_pages }}" class="page-link">{{ read_notifications.paginator.num_pages }}</a>
+      {% endif %}
+      {% if read_notifications.has_next %}
+        <a href="?rpage={{ read_notifications.next_page_number }}" class="page-link">&rsaquo;</a>
+        <a href="?rpage={{ read_notifications.paginator.num_pages }}" class="page-link">&raquo;</a>
+      {% endif %}
+    </div>
+    {% endif %}
     {% endif %}
   </div>
 </main>

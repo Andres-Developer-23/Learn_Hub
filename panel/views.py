@@ -5,6 +5,7 @@ from django.views.decorators.cache import never_cache
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponse
 from django.db.models import Count
+from django.core.paginator import Paginator
 from django.utils import timezone
 from datetime import timedelta
 import csv, json
@@ -53,7 +54,10 @@ def dashboard(request):
     unread_notifications = Notification.objects.filter(is_read=False).count()
     total_pending = pending + pending_enrollments + unread_notifications
 
-    students      = Student.objects.select_related('user').all().order_by('-created_at')
+    students_qs    = Student.objects.select_related('user').all().order_by('-created_at')
+    paginator = Paginator(students_qs, 20)
+    page_num = request.GET.get('page')
+    students = paginator.get_page(page_num)
 
     context = {
         'total': total,
@@ -374,24 +378,32 @@ def file_delete(request, pk):
 def notifications_view(request):
     pending_students = Student.objects.filter(status='pending').order_by('-created_at')
     pending_enrollments = EnrollmentRequest.objects.filter(status='pending').select_related('student', 'course').order_by('-created_at')
-    unread_notifications = Notification.objects.filter(is_read=False).select_related('student').order_by('-created_at')
-    read_notifications = Notification.objects.filter(is_read=True).select_related('student').order_by('-created_at')[:50]
+    unread_qs = Notification.objects.filter(is_read=False).select_related('student').order_by('-created_at')
+    read_qs = Notification.objects.filter(is_read=True).select_related('student').order_by('-created_at')
+
+    paginator = Paginator(unread_qs, 20)
+    page_num = request.GET.get('page')
+    unread_notifications = paginator.get_page(page_num)
+
+    read_paginator = Paginator(read_qs, 20)
+    read_page_num = request.GET.get('rpage')
+    read_notifications = read_paginator.get_page(read_page_num)
 
     pending_students_count = Student.objects.filter(status='pending').count()
     pending_enrollments_count = pending_enrollments.count()
-    unread_notifications_count = unread_notifications.count()
-    read_notifications_count = Notification.objects.filter(is_read=True).count()
-    total_pending = pending_students_count + pending_enrollments_count + unread_notifications_count
+    total_unread = Notification.objects.filter(is_read=False).count()
+    total_read = Notification.objects.filter(is_read=True).count()
+    total_pending = pending_students_count + pending_enrollments_count + total_unread
 
     context = {
         'unread_notifications': unread_notifications,
         'read_notifications': read_notifications,
-        'read_notifications_count': read_notifications_count,
         'pending_students': pending_students,
         'pending_enrollments': pending_enrollments,
         'pending_students_count': pending_students_count,
         'pending_enrollments_count': pending_enrollments_count,
-        'unread_notifications_count': unread_notifications_count,
+        'unread_notifications_count': total_unread,
+        'read_notifications_count': total_read,
         'total_pending': total_pending,
     }
     return render(request, 'panel/notifications.html', context)

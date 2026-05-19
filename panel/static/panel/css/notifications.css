@@ -164,6 +164,23 @@ body { background: var(--bg); color: var(--tx); display: flex; min-height: 100vh
     .stat-cards { grid-template-columns: repeat(2, 1fr); }
 }
 
+/* ─── Pagination ─── */
+.pagination {
+    display: flex; align-items: center; justify-content: center;
+    gap: 0.3rem; margin-top: 1.5rem; padding: 0.5rem 0;
+}
+.page-link {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 34px; height: 34px; padding: 0 0.5rem;
+    border-radius: 8px; font-size: 0.8rem; font-weight: 600;
+    color: var(--tx2); background: var(--card);
+    border: 1px solid var(--br); text-decoration: none;
+    transition: all 0.2s;
+}
+.page-link:hover { border-color: var(--acc); color: var(--acc); }
+.page-link.active { background: var(--acc); color: #fff; border-color: var(--acc); }
+.page-dots { border: none; background: transparent; min-width: auto; color: var(--mu); cursor: default; }
+
 @media (max-width: 500px) {
     .stat-cards { grid-template-columns: 1fr; }
     .pt { font-size: 1.25rem; }
