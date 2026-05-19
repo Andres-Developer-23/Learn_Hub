@@ -17,7 +17,7 @@
 }
 * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter', sans-serif }
 
-body { background: var(--bg); color: var(--tx); min-height: 100vh; position: relative; }
+body { background: var(--bg); color: var(--tx); min-height: 100vh; position: relative; display: flex; }
 .grid-bg {
     position: fixed; inset: 0;
     background-image:
@@ -417,7 +417,6 @@ td { padding: 1rem 1.5rem; border-bottom: 1px solid var(--br); font-size: 0.85re
 }
 
 .hb { display: none; }
-body { display: flex; min-height: 100vh; }
 
 @media (max-width: 768px) {
     .result-btns { flex-direction: column }
