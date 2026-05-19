@@ -342,6 +342,8 @@ tbody tr:last-child td { border-bottom: none }
     text-align: center;
 }
 
+.hb { display: none; }
+
 @media (max-width: 900px) {
     .hb {
         display: flex;
@@ -372,6 +374,7 @@ tbody tr:last-child td { border-bottom: none }
     .sb {
         transform: translateX(-100%);
         transition: transform 0.3s ease;
+        z-index: 150;
     }
     .sb.open { transform: translateX(0); }
     .main { margin-left: 0; padding: 1.5rem; padding-top: 4.5rem; }
@@ -386,5 +389,3 @@ tbody tr:last-child td { border-bottom: none }
     .tc { overflow-x: auto; }
     table { min-width: 600px; }
 }
-
-.hb { display: none; }
