@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 import json
-from enrollment.models import Student, Course, CourseContent, Exam, Question, QuestionOption, ExamAttempt, CourseFile, EnrollmentRequest
+from enrollment.models import Student, Course, CourseContent, Exam, Question, QuestionOption, ExamAttempt, CourseFile, EnrollmentRequest, ContentProgress
 from notificaciones.models import Notification
 from django.utils import timezone
 
@@ -64,12 +64,22 @@ def student_dashboard(request):
     notifications = student.notifications.all()[:10]
     unread_count = student.notifications.filter(is_read=False).count()
 
+    progress_data = {}
+    for course in enrolled_courses:
+        total = course.contents.count()
+        if total > 0:
+            viewed = ContentProgress.objects.filter(student=student, content__course=course).count()
+            progress_data[course.id] = {'viewed': viewed, 'total': total, 'pct': int((viewed / total * 100))}
+        else:
+            progress_data[course.id] = {'viewed': 0, 'total': 0, 'pct': 0}
+
     return render(request, 'student_portal/dashboard.html', {
         'student': student,
         'all_courses': all_courses,
         'enrolled_courses': enrolled_courses,
         'notifications': notifications,
         'unread_count': unread_count,
+        'progress_data': progress_data,
     })
 
 
@@ -219,13 +229,44 @@ def course_detail(request, pk):
     files = course.files.all()
     questions_count = Question.objects.filter(exam__course=course).count()
 
+    viewed_ids = set(ContentProgress.objects.filter(
+        student=student, content__course=course
+    ).values_list('content_id', flat=True))
+
+    total_contents = all_contents.count()
+    viewed_count = len(viewed_ids)
+    progress_pct = int((viewed_count / total_contents * 100)) if total_contents > 0 else 0
+
     context = {
         'course': course, 'student': student,
         'tab': tab, 'contents': contents, 'all_contents': all_contents,
         'exams': exams, 'attempts': attempts, 'files': files,
         'questions_count': questions_count,
+        'viewed_ids': viewed_ids,
+        'progress_pct': progress_pct,
+        'viewed_count': viewed_count,
+        'total_contents': total_contents,
     }
     return render(request, 'student_portal/curso.html', context)
+
+
+@login_required(login_url='student_login')
+@never_cache
+def mark_content_viewed(request, pk):
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error'}, status=405)
+    try:
+        student = request.user.student
+    except Student.DoesNotExist:
+        return JsonResponse({'status': 'error'}, status=403)
+
+    content = get_object_or_404(CourseContent, pk=pk)
+    ContentProgress.objects.get_or_create(student=student, content=content)
+
+    total = content.course.contents.count()
+    viewed = ContentProgress.objects.filter(student=student, content__course=content.course).count()
+
+    return JsonResponse({'status': 'success', 'viewed': viewed, 'total': total, 'progress': int((viewed / total * 100)) if total > 0 else 0})
 
 
 # ─── Notifications ─────────────────────────────────────────────────────────────

@@ -161,6 +161,19 @@ class EnrollmentRequest(models.Model):
         return f"{self.student.name} → {self.course.title} ({self.get_status_display()})"
 
 
+class ContentProgress(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='content_progress')
+    content = models.ForeignKey(CourseContent, on_delete=models.CASCADE, related_name='progress')
+    viewed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['student', 'content']
+        ordering = ['-viewed_at']
+
+    def __str__(self):
+        return f"{self.student.name} → {self.content.title}"
+
+
 class CourseFile(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='files')
     title = models.CharField(max_length=200)

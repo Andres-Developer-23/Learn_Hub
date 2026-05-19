@@ -11,7 +11,8 @@ urlpatterns = [
     path('notificacion/<int:pk>/leer/',      views.student_mark_read,      name='student_mark_read'),
     path('notificaciones/leer-todas/',       views.student_mark_all_read,  name='student_mark_all_read'),
     path('notificaciones/contar/',           views.student_notifications_count, name='student_notifications_count'),
-    path('curso/<int:pk>/',                  views.course_detail, name='student_course_detail'),
-    path('curso/<int:pk>/examen/',           views.take_exam,     name='take_exam'),
+    path('curso/<int:pk>/',                  views.course_detail,      name='student_course_detail'),
+    path('curso/<int:pk>/examen/',           views.take_exam,          name='take_exam'),
     path('curso/<int:pk>/examen/<int:attempt_pk>/resultado/', views.exam_result, name='exam_result'),
+    path('contenido/<int:pk>/visto/',        views.mark_content_viewed, name='mark_content_viewed'),
 ]

@@ -122,7 +122,21 @@
           <div class="mod-icon">{% course_icon_small course %}</div>
           <h3>{{ course.title }}</h3>
           <p>{{ course.description }}</p>
-          <span class="mod-tag" style="background:rgba(34,197,94,0.1);color:#4ade80">{{ course.duration }}</span>
+          <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-top:0.4rem">
+            <span class="mod-tag" style="background:rgba(34,197,94,0.1);color:#4ade80">{{ course.duration }}</span>
+            {% with pd=progress_data|default:"" %}
+            {% if pd and course.id in pd %}
+            <div style="flex:1;min-width:100px">
+              <div style="display:flex;align-items:center;gap:0.5rem">
+                <div style="flex:1;height:5px;border-radius:999px;background:rgba(255,255,255,0.06);overflow:hidden">
+                  <div style="height:100%;border-radius:999px;background:linear-gradient(90deg,var(--acc),#2dd4bf);width:{{ pd|dict_key:course.id|dict_key:'pct' }}%;transition:width 0.5s"></div>
+                </div>
+                <span style="font-size:0.7rem;font-weight:700;color:var(--acc);white-space:nowrap">{{ pd|dict_key:course.id|dict_key:'viewed' }}/{{ pd|dict_key:course.id|dict_key:'total' }}</span>
+              </div>
+            </div>
+            {% endif %}
+            {% endwith %}
+          </div>
         </div>
       </a>
       {% endfor %}

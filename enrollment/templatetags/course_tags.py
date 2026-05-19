@@ -45,3 +45,8 @@ def course_icon(course, size=80, rounded=18):
 @register.simple_tag
 def course_icon_small(course, size=48):
     return course_icon(course, size=size, rounded=10)
+
+
+@register.filter
+def dict_key(d, key):
+    return d.get(key, {})

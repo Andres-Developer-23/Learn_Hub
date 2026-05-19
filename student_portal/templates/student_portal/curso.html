@@ -79,7 +79,7 @@
                 {% if tab == 'explicacion' or tab == 'ejemplo' or tab == 'demo' %}
                 <div class="content-list">
                     {% for c in contents %}
-                    <div class="content-card type-{{ c.section_type }}">
+                    <div class="content-card type-{{ c.section_type }} {% if c.id in viewed_ids %}viewed{% endif %}" data-content-id="{{ c.id }}" data-course-id="{{ course.id }}">
                         <div class="content-card-header">
                             <div class="content-number">{{ forloop.counter }}</div>
                             <div>
@@ -90,6 +90,9 @@
                                 </div>
                                 <h4>{{ c.title }}</h4>
                             </div>
+                            {% if c.id in viewed_ids %}
+                            <div class="viewed-badge" title="Visto"><i class="fas fa-check-circle"></i></div>
+                            {% endif %}
                         </div>
                         {% if c.content %}<div class="content-text">{{ c.content|safe }}</div>{% endif %}
                         {% if c.file %}
@@ -156,6 +159,18 @@
             <!-- Sidebar -->
             <aside class="sidebar">
                 <div class="sidebar-card">
+                    <h3>Tu progreso</h3>
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: {{ progress_pct }}%"></div>
+                        </div>
+                        <div class="progress-text">
+                            <strong>{{ viewed_count }}/{{ total_contents }}</strong> m&oacute;dulos
+                            <span class="progress-pct">{{ progress_pct }}%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="sidebar-card">
                     <h3>Informaci&oacute;n del curso</h3>
                     <ul class="sidebar-info">
                         <li><i class="fas fa-signal"></i><span>Nivel</span><strong>{{ course.get_level_display }}</strong></li>
@@ -205,5 +220,60 @@
     <script>hljs.highlightAll();</script>
     <script src="{% static 'enrollment/js/script.js' %}"></script>
     <script src="{% static 'enrollment/js/code-runner.js' %}"></script>
+    <script>
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token }}';
+    const markUrl = '{% url "mark_content_viewed" 0 %}';
+
+    function markViewed(contentId) {
+        fetch(markUrl.replace('/0/', '/' + contentId + '/'), {
+            method: 'POST',
+            headers: {'X-CSRFToken': csrfToken}
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            if (d.status === 'success') {
+                var card = document.querySelector('[data-content-id="' + contentId + '"]');
+                if (card) {
+                    card.classList.add('viewed');
+                    var header = card.querySelector('.content-card-header');
+                    if (header && !card.querySelector('.viewed-badge')) {
+                        var badge = document.createElement('div');
+                        badge.className = 'viewed-badge';
+                        badge.title = 'Visto';
+                        badge.innerHTML = '<i class="fas fa-check-circle"></i>';
+                        header.appendChild(badge);
+                    }
+                }
+                var progressFill = document.querySelector('.progress-fill');
+                var progressText = document.querySelector('.progress-text');
+                if (progressFill && progressText) {
+                    progressFill.style.width = d.progress + '%';
+                    progressText.innerHTML = '<strong>' + d.viewed + '/' + d.total + '</strong> m\u00f3dulos <span class="progress-pct">' + d.progress + '%</span>';
+                }
+            }
+        });
+    }
+
+    if ('IntersectionObserver' in window) {
+        var observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    var card = entry.target;
+                    if (!card.classList.contains('viewed')) {
+                        var id = card.getAttribute('data-content-id');
+                        if (id) markViewed(id);
+                    }
+                    observer.unobserve(card);
+                }
+            });
+        }, { threshold: 0.3 });
+
+        document.querySelectorAll('.content-card:not(.viewed)').forEach(function(card) {
+            if (card.getAttribute('data-content-id')) {
+                observer.observe(card);
+            }
+        });
+    }
+    </script>
 </body>
 </html>
