@@ -107,8 +107,8 @@ body::before {
     transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     background: transparent; padding: 0 0.3rem;
 }
-.field input:focus ~ label,
-.field input:not(:placeholder-shown) ~ label {
+.field.focused label,
+.field.has-value label {
     top: 0; left: 0.8rem; font-size: 0.7rem; font-weight: 700; color: var(--acc);
     background: var(--bg); border-radius: 4px;
 }

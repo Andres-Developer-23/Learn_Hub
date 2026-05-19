@@ -113,12 +113,23 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     document.querySelectorAll('.field input').forEach(function(input) {
+        function updateFieldValue() {
+            var field = input.closest('.field');
+            if (input.value.trim() !== '') {
+                field.classList.add('has-value');
+            } else {
+                field.classList.remove('has-value');
+            }
+        }
         input.addEventListener('focus', function() {
             this.closest('.field').classList.add('focused');
         });
         input.addEventListener('blur', function() {
             this.closest('.field').classList.remove('focused');
+            updateFieldValue();
         });
+        input.addEventListener('input', updateFieldValue);
+        updateFieldValue();
     });
 });
 </script>

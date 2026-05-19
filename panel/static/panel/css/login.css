@@ -262,8 +262,8 @@ body::before {
     padding: 0 0.3rem;
 }
 
-.field input:focus ~ label,
-.field input:not(:placeholder-shown) ~ label {
+.field.focused label,
+.field.has-value label {
     top: 0;
     left: 0.8rem;
     font-size: 0.7rem;
