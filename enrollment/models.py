@@ -1,5 +1,21 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.urls import reverse
+
+
+class Instructor(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='instructor')
+    name = models.CharField(max_length=150)
+    email = models.EmailField()
+    bio = models.TextField(blank=True, default='')
+    avatar_url = models.CharField(max_length=500, blank=True, default='')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('instructor_dashboard')
 
 
 class Course(models.Model):
@@ -23,6 +39,7 @@ class Course(models.Model):
     duration = models.CharField(max_length=100, default='16 semanas')
     level = models.CharField(max_length=20, choices=LEVEL_CHOICES, default='principiante')
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, blank=True, null=True, verbose_name='Categoría')
+    instructor = models.ForeignKey(Instructor, on_delete=models.SET_NULL, null=True, blank=True, related_name='courses')
     instructor_name = models.CharField(max_length=150, default='Instructor')
     instructor_bio = models.TextField(blank=True, default='')
     instructor_avatar_url = models.CharField(max_length=500, blank=True, default='')

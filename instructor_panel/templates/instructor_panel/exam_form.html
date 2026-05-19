@@ -1,0 +1,87 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ exam|yesno:"Editar,Crear" }} examen – {{ course.title }} – LearnHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="{% static 'instructor_panel/css/instructor.css' %}">
+</head>
+<body>
+<main class="main" style="max-width:720px;margin:0 auto;padding:2rem">
+  <a href="{% url 'instructor_course_detail' course.pk %}" class="back-link">&larr; Volver al curso</a>
+  <h1 class="pt">{{ exam|yesno:"Editar,Crear" }} examen de <span>{{ course.title }}</span></h1>
+
+  {% if messages %}{% for m in messages %}<div class="msg {{ m.tags }}">{{ m }}</div>{% endfor %}{% endif %}
+
+  <form method="POST" style="background:var(--card);border:1px solid var(--br);border-radius:16px;padding:2rem;margin-top:1.5rem">
+    {% csrf_token %}
+    <div class="fi"><label>Título</label><input type="text" name="title" required value="{{ exam.title|default:'' }}" placeholder="Nombre del examen"></div>
+    <div class="fi"><label>Descripción</label><textarea name="description" rows="3">{{ exam.description|default:'' }}</textarea></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+      <div class="fi"><label>Nota mínima (%)</label><input type="number" name="passing_score" value="{{ exam.passing_score|default:'70' }}" min="0" max="100"></div>
+      <div class="fi"><label>Tiempo límite (min)</label><input type="number" name="time_limit_minutes" value="{{ exam.time_limit_minutes|default:'30' }}" min="1"></div>
+    </div>
+
+    <div style="margin-top:1.5rem">
+      <label style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+        <strong>Preguntas</strong>
+        <button type="button" class="btn-primary" onclick="addQuestion()" style="font-size:0.75rem;padding:0.3rem 0.7rem"><i class="fas fa-plus"></i> Agregar</button>
+      </label>
+      <div id="questions">
+        {% if exam %}
+        {% for q in exam.questions.all %}
+        <div class="question-block">
+          <input type="hidden" name="question_id_{{ forloop.counter0 }}" value="{{ q.pk }}">
+          <div class="fi"><label>Pregunta {{ forloop.counter }}</label><input type="text" name="question_text[]" value="{{ q.text }}" required></div>
+          {% for opt in q.options.all %}
+          <div class="option-row">
+            <input type="radio" name="correct_{{ forloop.parentloop.counter0 }}" value="{{ forloop.counter0 }}" {% if opt.is_correct %}checked{% endif %}>
+            <input type="text" name="option_{{ forloop.parentloop.counter0 }}_{{ forloop.counter0 }}" value="{{ opt.text }}" placeholder="Opción {{ forloop.counter }}" required>
+          </div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+        {% else %}
+        {% for qi in "0123"|make_list %}
+        <div class="question-block">
+          <div class="fi"><label>Pregunta {{ forloop.counter }}</label><input type="text" name="question_text[]" placeholder="Escribe la pregunta" required></div>
+          {% for oi in "0123"|make_list %}
+          <div class="option-row">
+            <input type="radio" name="correct_{{ qi }}" value="{{ oi }}" {% if oi == '0' %}checked{% endif %}>
+            <input type="text" name="option_{{ qi }}_{{ oi }}" placeholder="Opción {{ forloop.counter }}" required>
+          </div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+        {% endif %}
+      </div>
+    </div>
+
+    <button type="submit" class="btn-primary" style="margin-top:1.5rem"><i class="fas fa-save"></i> {{ exam|yesno:"Actualizar,Guardar" }} examen</button>
+  </form>
+</main>
+
+<script>
+let qCounter = {{ exam.questions.count|default:4 }};
+
+function addQuestion() {
+    const container = document.getElementById('questions');
+    const block = document.createElement('div');
+    block.className = 'question-block';
+    block.innerHTML = `
+        <div class="fi"><label>Pregunta ${qCounter + 1}</label><input type="text" name="question_text[]" required></div>
+        ${[0,1,2,3].map(i => `
+          <div class="option-row">
+            <input type="radio" name="correct_${qCounter}" value="${i}" ${i===0?'checked':''}>
+            <input type="text" name="option_${qCounter}_${i}" placeholder="Opción ${i+1}" required>
+          </div>
+        `).join('')}
+    `;
+    container.appendChild(block);
+    qCounter++;
+}
+</script>
+</body>
+</html>

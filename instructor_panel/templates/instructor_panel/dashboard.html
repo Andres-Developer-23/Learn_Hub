@@ -1,0 +1,91 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dashboard – {{ instructor.name }} – LearnHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="{% static 'instructor_panel/css/instructor.css' %}">
+</head>
+<body>
+<button class="hb" id="hb">☰</button>
+<div class="sb-overlay" id="sb-overlay"></div>
+
+<aside class="sb" id="sidebar">
+  <div class="logo">Learn<span>Hub</span></div>
+  <div class="ns">Instructor</div>
+  <a href="{% url 'instructor_dashboard' %}" class="ni active"><span class="ic">📊</span><span>Dashboard</span></a>
+  <a href="#sec-courses" class="ni"><span class="ic">📚</span><span>Mis Cursos</span></a>
+  <a href="{% url 'instructor_profile_edit' %}" class="ni"><span class="ic">👤</span><span>Mi Perfil</span></a>
+  <div class="sf">
+    <div class="up">
+      <div class="av">{{ instructor.name|first|upper }}</div>
+      <div class="ui"><strong>{{ instructor.name|truncatechars:18 }}</strong><small>Instructor</small></div>
+    </div>
+    <a href="{% url 'instructor_logout' %}" class="lb">🚪 Cerrar sesión</a>
+  </div>
+</aside>
+
+<main class="main">
+  {% if messages %}
+  {% for m in messages %}
+  <div class="msg {{ m.tags }}">{{ m }}</div>
+  {% endfor %}
+  {% endif %}
+
+  <div class="tb">
+    <h1 class="pt">Panel de <span>Instructor</span></h1>
+    <p class="psub">Bienvenido, {{ instructor.name }}.</p>
+  </div>
+
+  <div class="sg">
+    <div class="sc"><div class="sl">📚 Cursos</div><div class="sv">{{ total_courses }}</div><div class="ss">A tu cargo</div></div>
+    <div class="sc"><div class="sl">👥 Estudiantes</div><div class="sv">{{ total_students }}</div><div class="ss">Inscritos en total</div></div>
+    <div class="sc"><div class="sl">📝 Módulos</div><div class="sv">{{ total_contents }}</div><div class="ss">Contenidos creados</div></div>
+    <div class="sc"><div class="sl">📋 Exámenes</div><div class="sv">{{ total_exams }}</div><div class="ss">Evaluaciones</div></div>
+    <div class="sc"><div class="sl">📈 Actividad</div><div class="sv">{{ recent_attempts }}</div><div class="ss">Exámenes esta semana</div></div>
+  </div>
+
+  <div class="sec" id="sec-courses">
+    <div class="section-label">📚 Mis Cursos</div>
+    {% if courses %}
+    <div class="modules">
+      {% for course in courses %}
+      <a href="{% url 'instructor_course_detail' course.pk %}" style="text-decoration:none;color:inherit">
+        <div class="mod">
+          <div class="mod-icon">{{ course.icon }}</div>
+          <h3>{{ course.title }}</h3>
+          <p>{{ course.description|truncatechars:120 }}</p>
+          <span class="mod-tag">{{ course.duration }} · {{ course.get_level_display }}</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p style="color:var(--mu);padding:2rem 0;text-align:center">No tienes cursos asignados aún.</p>
+    {% endif %}
+  </div>
+</main>
+
+<script>
+const hb = document.getElementById('hb');
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('sb-overlay');
+function openSb() { sidebar.classList.add('open'); overlay.classList.add('open'); }
+function closeSb() { sidebar.classList.remove('open'); overlay.classList.remove('open'); }
+if (hb) hb.addEventListener('click', function() { sidebar.classList.contains('open') ? closeSb() : openSb(); });
+if (overlay) overlay.addEventListener('click', closeSb);
+document.querySelectorAll('a.ni').forEach(function(l) { l.addEventListener('click', function() { if (window.innerWidth <= 900) closeSb(); }); });
+
+function updateActiveSidebar() {
+    const hash = window.location.hash || '#sec-overview';
+    document.querySelectorAll('a.ni').forEach(function(n) { n.classList.remove('active'); });
+    const link = document.querySelector('a.ni[href="' + hash + '"]');
+    if (link) link.classList.add('active');
+}
+window.addEventListener('hashchange', updateActiveSidebar);
+updateActiveSidebar();
+</script>
+</body>
+</html>

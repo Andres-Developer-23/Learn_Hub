@@ -28,6 +28,7 @@ urlpatterns = [
     path('estudiante/', include('student_portal.urls')),
     path('terminal/', include('terminal.urls')),
     path('notificaciones/', include('notificaciones.urls')),
+    path('instructor/', include('instructor_panel.urls')),
 
     # Password Reset
     path('password-reset/',

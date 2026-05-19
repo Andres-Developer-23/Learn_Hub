@@ -1,0 +1,159 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ course.title }} – LearnHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="{% static 'instructor_panel/css/instructor.css' %}">
+</head>
+<body>
+<button class="hb" id="hb">☰</button>
+<div class="sb-overlay" id="sb-overlay"></div>
+
+<aside class="sb" id="sidebar">
+  <div class="logo">Learn<span>Hub</span></div>
+  <div class="ns">Instructor</div>
+  <a href="{% url 'instructor_dashboard' %}" class="ni"><span class="ic">📊</span><span>Dashboard</span></a>
+  <a href="#sec-content" class="ni"><span class="ic">📝</span><span>Contenido</span></a>
+  <a href="#sec-exams" class="ni"><span class="ic">📋</span><span>Exámenes</span></a>
+  <a href="#sec-files" class="ni"><span class="ic">📁</span><span>Archivos</span></a>
+  <a href="#sec-students" class="ni"><span class="ic">👥</span><span>Estudiantes</span></a>
+  <div class="sf">
+    <div class="up">
+      <div class="av">{{ instructor.name|first|upper }}</div>
+      <div class="ui"><strong>{{ instructor.name|truncatechars:18 }}</strong><small>Instructor</small></div>
+    </div>
+    <a href="{% url 'instructor_logout' %}" class="lb">🚪 Cerrar sesión</a>
+  </div>
+</aside>
+
+<main class="main">
+  {% if messages %}{% for m in messages %}<div class="msg {{ m.tags }}">{{ m }}</div>{% endfor %}{% endif %}
+
+  <div class="tb">
+    <a href="{% url 'instructor_dashboard' %}" class="back-link">&larr; Mis Cursos</a>
+    <h1 class="pt">{{ course.title }}</h1>
+    <p class="psub">{{ course.duration }} · {{ course.get_level_display }}</p>
+  </div>
+
+  <div class="sg">
+    <div class="sc"><div class="sl">👥 Estudiantes</div><div class="sv">{{ total_students }}</div></div>
+    <div class="sc"><div class="sl">📝 Módulos</div><div class="sv">{{ contents|length }}</div></div>
+    <div class="sc"><div class="sl">📋 Exámenes</div><div class="sv">{{ exams|length }}</div></div>
+    <div class="sc"><div class="sl">📈 Promedio</div><div class="sv">{{ avg_score }}%</div></div>
+  </div>
+
+  <div class="sec" id="sec-content">
+    <div class="section-label">📝 Contenido del Curso</div>
+    <a href="{% url 'instructor_content_create' course.pk %}" class="btn-primary"><i class="fas fa-plus"></i> Agregar módulo</a>
+    {% if contents %}
+    <div class="item-list">
+      {% for c in contents %}
+      <div class="item-card">
+        <div class="item-info">
+          <span class="badge badge-{{ c.section_type }}">
+            {% if c.section_type == 'explicacion' %}📖{% elif c.section_type == 'ejemplo' %}💻{% else %}🎮{% endif %}
+            {{ c.get_section_type_display }}
+          </span>
+          <strong>{{ c.title }}</strong>
+          <small>Orden: {{ c.order }}</small>
+        </div>
+        <form method="POST" action="{% url 'instructor_content_delete' c.pk %}" style="display:inline">
+          {% csrf_token %}
+          <button class="btn-danger" type="submit" onclick="return confirm('¿Eliminar este módulo?')">🗑️</button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}<p class="empty">Sin contenido aún.</p>{% endif %}
+  </div>
+
+  <div class="sec" id="sec-exams">
+    <div class="section-label">📋 Exámenes</div>
+    <a href="{% url 'instructor_exam_create' course.pk %}" class="btn-primary"><i class="fas fa-plus"></i> Crear examen</a>
+    {% if exams %}
+    <div class="item-list">
+      {% for e in exams %}
+      <div class="item-card">
+        <div class="item-info">
+          <strong>{{ e.title }}</strong>
+          <small>{{ e.questions.count }} preguntas · {{ e.passing_score }}% para aprobar · {{ e.time_limit_minutes }} min</small>
+        </div>
+        <div style="display:flex;gap:0.3rem">
+          <a href="{% url 'instructor_exam_edit' e.pk %}" class="btn-edit">✏️</a>
+          <form method="POST" action="{% url 'instructor_exam_delete' e.pk %}" style="display:inline">
+            {% csrf_token %}
+            <button class="btn-danger" type="submit" onclick="return confirm('¿Eliminar este examen?')">🗑️</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}<p class="empty">Sin exámenes aún.</p>{% endif %}
+  </div>
+
+  <div class="sec" id="sec-files">
+    <div class="section-label">📁 Archivos</div>
+    <a href="{% url 'instructor_file_upload' course.pk %}" class="btn-primary"><i class="fas fa-upload"></i> Subir archivo</a>
+    {% if files %}
+    <div class="item-list">
+      {% for f in files %}
+      <div class="item-card">
+        <div class="item-info">
+          <strong>{{ f.title }}</strong>
+          <small>Subido {{ f.uploaded_at|date:"d/m/Y" }}</small>
+        </div>
+        <form method="POST" action="{% url 'instructor_file_delete' f.pk %}" style="display:inline">
+          {% csrf_token %}
+          <button class="btn-danger" type="submit" onclick="return confirm('¿Eliminar este archivo?')">🗑️</button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}<p class="empty">Sin archivos aún.</p>{% endif %}
+  </div>
+
+  <div class="sec" id="sec-students">
+    <div class="section-label">👥 Estudiantes Inscritos</div>
+    <a href="{% url 'instructor_student_list' course.pk %}" class="btn-primary"><i class="fas fa-chart-bar"></i> Ver progreso detallado</a>
+    {% if total_students > 0 %}
+    <div class="item-list">
+      {% for s in course.students.all|slice:":10" %}
+      <div class="item-card">
+        <div class="item-info">
+          <strong>{{ s.name }}</strong>
+          <small>{{ s.email }} · {{ s.get_level_display }}</small>
+        </div>
+      </div>
+      {% endfor %}
+      {% if total_students > 10 %}
+      <p style="text-align:center;color:var(--mu);font-size:0.82rem;padding:0.5rem">... y {{ total_students|add:"-10" }} más.</p>
+      {% endif %}
+    </div>
+    {% else %}<p class="empty">Sin estudiantes inscritos aún.</p>{% endif %}
+  </div>
+</main>
+
+<script>
+const hb = document.getElementById('hb');
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('sb-overlay');
+function openSb() { sidebar.classList.add('open'); overlay.classList.add('open'); }
+function closeSb() { sidebar.classList.remove('open'); overlay.classList.remove('open'); }
+if (hb) hb.addEventListener('click', function() { sidebar.classList.contains('open') ? closeSb() : openSb(); });
+if (overlay) overlay.addEventListener('click', closeSb);
+document.querySelectorAll('a.ni').forEach(function(l) { l.addEventListener('click', function() { if (window.innerWidth <= 900) closeSb(); }); });
+
+function updateActiveSidebar() {
+    const hash = window.location.hash || '#sec-overview';
+    document.querySelectorAll('a.ni').forEach(function(n) { n.classList.remove('active'); });
+    const link = document.querySelector('a.ni[href="' + hash + '"]');
+    if (link) link.classList.add('active');
+}
+window.addEventListener('hashchange', updateActiveSidebar);
+updateActiveSidebar();
+</script>
+</body>
+</html>

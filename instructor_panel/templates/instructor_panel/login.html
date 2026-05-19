@@ -1,0 +1,27 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Instructor – LearnHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="{% static 'panel/css/login.css' %}">
+</head>
+<body>
+<div class="lc">
+  <div class="lbx">
+    <div class="logo">Learn<span>Hub</span></div>
+    <p class="subtitle">Panel del Instructor</p>
+    {% if messages %}{% for m in messages %}<div class="msg {{ m.tags }}">{{ m }}</div>{% endfor %}{% endif %}
+    <form method="POST">
+      {% csrf_token %}
+      <div class="fi"><i class="fas fa-user"></i><input type="text" name="username" placeholder="Usuario" required autofocus></div>
+      <div class="fi"><i class="fas fa-lock"></i><input type="password" name="password" placeholder="Contraseña" required></div>
+      <button type="submit" class="btn">Ingresar</button>
+    </form>
+    <a href="{% url 'index' %}" class="back">&larr; Volver al sitio</a>
+  </div>
+</div>
+</body>
+</html>

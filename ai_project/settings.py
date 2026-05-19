@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'terminal.apps.TerminalConfig',
     'notificaciones',
     'email_service',
+    'instructor_panel',
 ]
 
 LOGIN_URL = '/panel/login/'

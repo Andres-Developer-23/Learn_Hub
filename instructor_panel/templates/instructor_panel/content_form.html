@@ -1,0 +1,35 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agregar contenido – {{ course.title }} – LearnHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="{% static 'instructor_panel/css/instructor.css' %}">
+</head>
+<body>
+<main class="main" style="max-width:720px;margin:0 auto;padding:2rem">
+  <a href="{% url 'instructor_course_detail' course.pk %}" class="back-link">&larr; Volver al curso</a>
+  <h1 class="pt">Agregar módulo a <span>{{ course.title }}</span></h1>
+
+  {% if messages %}{% for m in messages %}<div class="msg {{ m.tags }}">{{ m }}</div>{% endfor %}{% endif %}
+
+  <form method="POST" enctype="multipart/form-data" style="background:var(--card);border:1px solid var(--br);border-radius:16px;padding:2rem;margin-top:1.5rem">
+    {% csrf_token %}
+    <div class="fi"><label>Tipo</label>
+      <select name="section_type" required>
+        <option value="explicacion">📖 Explicación</option>
+        <option value="ejemplo">💻 Ejemplo</option>
+        <option value="demo">🎮 Demo</option>
+      </select>
+    </div>
+    <div class="fi"><label>Título</label><input type="text" name="title" required placeholder="Título del módulo"></div>
+    <div class="fi"><label>Contenido (HTML)</label><textarea name="content" rows="12" style="font-family:monospace;font-size:0.85rem"></textarea></div>
+    <div class="fi"><label>Orden</label><input type="number" name="order" value="1" min="0" step="1"></div>
+    <div class="fi"><label>Archivo (opcional)</label><input type="file" name="file"></div>
+    <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Guardar</button>
+  </form>
+</main>
+</body>
+</html>

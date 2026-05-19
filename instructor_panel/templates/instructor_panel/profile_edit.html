@@ -1,0 +1,27 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mi Perfil – LearnHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="{% static 'instructor_panel/css/instructor.css' %}">
+</head>
+<body>
+<main class="main" style="max-width:640px;margin:0 auto;padding:2rem">
+  <a href="{% url 'instructor_dashboard' %}" class="back-link">&larr; Dashboard</a>
+  <h1 class="pt">Mi <span>Perfil</span></h1>
+
+  {% if messages %}{% for m in messages %}<div class="msg {{ m.tags }}">{{ m }}</div>{% endfor %}{% endif %}
+
+  <form method="POST" enctype="multipart/form-data" style="background:var(--card);border:1px solid var(--br);border-radius:16px;padding:2rem;margin-top:1.5rem">
+    {% csrf_token %}
+    <div class="fi"><label>Nombre</label><input type="text" name="name" value="{{ instructor.name }}" required></div>
+    <div class="fi"><label>Biografía</label><textarea name="bio" rows="5">{{ instructor.bio }}</textarea></div>
+    <div class="fi"><label>URL de avatar</label><input type="url" name="avatar_url" value="{{ instructor.avatar_url }}" placeholder="https://example.com/avatar.jpg"></div>
+    <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Guardar cambios</button>
+  </form>
+</main>
+</body>
+</html>
