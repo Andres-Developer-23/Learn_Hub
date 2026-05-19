@@ -24,8 +24,8 @@
   <div class="ns">Acciones</div>
   <a href="{% url 'course_list' %}" class="ni"><span class="ic">📚</span><span>Cursos</span></a>
   <a href="{% url 'export_csv' %}" class="ni"><span class="ic">📥</span><span>Exportar CSV</span></a>
-  <a href="/" class="ni"><span class="ic">🌐</span><span>Ver sitio web</span></a>
-  <a href="/admin/" class="ni"><span class="ic">⚙️</span><span>Django Admin</span></a>
+  <a href="{% url 'index' %}" class="ni"><span class="ic">🌐</span><span>Ver sitio web</span></a>
+  <a href="{% url 'admin:index' %}" class="ni"><span class="ic">⚙️</span><span>Django Admin</span></a>
 
   <div class="sf">
     <div class="up">

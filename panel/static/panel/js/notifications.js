@@ -1,4 +1,8 @@
-const CSRF = '{{ csrf_token }}';
+// WARNING: This file is NOT currently loaded by any template.
+// The inline <script> in notifications.html contains the active code.
+// If you enable this file, ensure Django template syntax is removed
+// and use a meta tag or cookie-based CSRF approach.
+const CSRF = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
 document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -10,9 +14,10 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 });
 
 function handleAction(action, pk) {
-    const url = action === 'accept' 
-        ? '/notificaciones/notificacion/' + pk + '/aceptar/'
-        : '/notificaciones/notificacion/' + pk + '/rechazar/';
+    // TODO: Use {% url %} via data attribute when this file is activated
+const url = action === 'accept'
+    ? '/notificaciones/notificacion/' + pk + '/aceptar/'
+    : '/notificaciones/notificacion/' + pk + '/rechazar/';
     
     fetch(url, {
         method: 'POST',

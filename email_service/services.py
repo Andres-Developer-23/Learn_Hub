@@ -205,6 +205,9 @@ def send_student_welcome_email(student, username, password):
     Envía un email de bienvenida al estudiante aceptado con sus credenciales.
     """
     subject = 'Bienvenido a LearnHub - Tus credenciales de acceso'
+    sender = getattr(settings, 'DEFAULT_FROM_EMAIL', 'LearnHub <noreply@learnhub.com>')
+    site_url = getattr(settings, 'SITE_URL', 'http://127.0.0.1:8000')
+    login_url = f'{site_url}/estudiante/login/'
 
     text_body = f"""Hola {student.name}!
 
@@ -216,7 +219,7 @@ Usuario: {username}
 Contraseña: {password}
 ----------------------------------------------
 
-Accede a la plataforma: http://127.0.0.1:8000/estudiante/login/
+Accede a la plataforma: {login_url}
 
 Una vez dentro, podrás:
 - Acceder a todos tus cursos matriculados
@@ -247,7 +250,7 @@ Equipo LearnHub"""
             <table cellpadding="0" cellspacing="0">
               <tr>
                 <td style="background:linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); border-radius:8px; text-align:center;">
-                  <a href="http://127.0.0.1:8000/estudiante/login/" style="display:inline-block; padding:14px 40px; color:#ffffff; font-size:16px; font-weight:700; text-decoration:none; border-radius:8px;">Acceder a la Plataforma</a>
+                  <a href="{login_url}" style="display:inline-block; padding:14px 40px; color:#ffffff; font-size:16px; font-weight:700; text-decoration:none; border-radius:8px;">Acceder a la Plataforma</a>
                 </td>
               </tr>
             </table>
@@ -285,15 +288,12 @@ Equipo LearnHub"""
         Equipo LearnHub
       </p>"""
 
-    sender = getattr(settings, 'DEFAULT_FROM_EMAIL', 'LearnHub <noreply@learnhub.com>')
-    site_url = getattr(settings, 'SITE_URL', 'http://127.0.0.1:8000')
-    login_url = f'{site_url}/estudiante/login/'
-    html_body = _build_html_template('&iexcl;Bienvenido a LearnHub!', content_html.replace('http://127.0.0.1:8000/estudiante/login/', login_url))
+    html_body = _build_html_template('&iexcl;Bienvenido a LearnHub!', content_html)
 
     if getattr(settings, 'GMAIL_API_ENABLED', False):
         service = _get_gmail_service()
         if service:
-            return _send_via_gmail_api(service, sender, student.email, subject, text_body.replace('http://127.0.0.1:8000/estudiante/login/', login_url), html_body)
+            return _send_via_gmail_api(service, sender, student.email, subject, text_body, html_body)
 
     logger.warning("Gmail API no disponible, intentando con método alternativo")
     return False
@@ -308,6 +308,10 @@ def send_enrollment_accepted_email(enrollment):
 
     username = student.user.username if student.user else student.email.split('@')[0]
     password = student.generated_password or 'N/A'
+
+    sender = getattr(settings, 'DEFAULT_FROM_EMAIL', 'LearnHub <noreply@learnhub.com>')
+    site_url = getattr(settings, 'SITE_URL', 'http://127.0.0.1:8000')
+    login_url = f'{site_url}/estudiante/login/'
 
     subject = f'Inscripción aprobada al curso: {course.title}'
 
@@ -326,7 +330,7 @@ Usuario: {username}
 Contraseña: {password}
 ----------------------------------------------
 
-Accede a la plataforma: http://127.0.0.1:8000/estudiante/login/
+Accede a la plataforma: {login_url}
 
 Una vez dentro, podrás:
 - Acceder a tus cursos matriculados
@@ -372,7 +376,7 @@ Equipo LearnHub"""
             <table cellpadding="0" cellspacing="0">
               <tr>
                 <td style="background:linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); border-radius:8px; text-align:center;">
-                  <a href="http://127.0.0.1:8000/estudiante/login/" style="display:inline-block; padding:14px 40px; color:#ffffff; font-size:16px; font-weight:700; text-decoration:none; border-radius:8px;">Acceder a la Plataforma</a>
+                  <a href="{login_url}" style="display:inline-block; padding:14px 40px; color:#ffffff; font-size:16px; font-weight:700; text-decoration:none; border-radius:8px;">Acceder a la Plataforma</a>
                 </td>
               </tr>
             </table>
@@ -410,15 +414,12 @@ Equipo LearnHub"""
         Equipo LearnHub
       </p>"""
 
-    sender = getattr(settings, 'DEFAULT_FROM_EMAIL', 'LearnHub <noreply@learnhub.com>')
-    site_url = getattr(settings, 'SITE_URL', 'http://127.0.0.1:8000')
-    login_url = f'{site_url}/estudiante/login/'
-    html_body = _build_html_template('&iexcl;Inscripci&oacute;n Aprobada!', content_html.replace('http://127.0.0.1:8000/estudiante/login/', login_url))
+    html_body = _build_html_template('&iexcl;Inscripci&oacute;n Aprobada!', content_html)
 
     if getattr(settings, 'GMAIL_API_ENABLED', False):
         service = _get_gmail_service()
         if service:
-            return _send_via_gmail_api(service, sender, student.email, subject, text_body.replace('http://127.0.0.1:8000/estudiante/login/', login_url), html_body)
+            return _send_via_gmail_api(service, sender, student.email, subject, text_body, html_body)
 
     logger.warning("Gmail API no disponible, intentando con método alternativo")
     return False

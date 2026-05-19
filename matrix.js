@@ -1,3 +1,7 @@
+// NOTE: This file is a copy. The active version is at:
+// enrollment/static/enrollment/js/matrix.js
+// Please make changes there.
+
 
 const canvas = document.getElementById("canvas")
 const ctx = canvas.getContext('2d')

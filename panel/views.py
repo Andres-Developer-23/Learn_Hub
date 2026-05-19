@@ -152,7 +152,7 @@ def course_create(request):
         icon = request.POST.get('icon', '📚').strip()
         duration = request.POST.get('duration', '16 semanas').strip()
         level = request.POST.get('level', 'principiante')
-        order = request.POST.get('order', 0)
+        order = int(request.POST.get('order', 0))
         is_active = request.POST.get('is_active') == 'on'
         if title:
             course = Course.objects.create(
@@ -413,9 +413,11 @@ def enrollment_accept(request, pk):
         enrollment.student.courses.add(enrollment.course)
         
         try:
-            send_enrollment_accepted_email(enrollment)
+            sent = send_enrollment_accepted_email(enrollment)
+            if not sent:
+                messages.warning(request, 'Inscripción aceptada pero el email no pudo ser enviado.')
         except Exception as e:
-            messages.warning(request, f'Inscripción aceptada pero el email no pudo ser enviado.')
+            messages.warning(request, 'Inscripción aceptada pero el email no pudo ser enviado.')
         
         Notification.objects.create(
             student=enrollment.student,

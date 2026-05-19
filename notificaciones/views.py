@@ -3,6 +3,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
+from enrollment.models import Student
+from email_service.services import send_student_welcome_email
 from django.http import JsonResponse
 import secrets, string
 import logging
@@ -49,8 +51,6 @@ def _create_student_user(student):
 @login_required(login_url='admin_login')
 def notification_accept(request, pk):
     if request.method == 'POST':
-        from enrollment.models import Student
-        from email_service.services import send_student_welcome_email
         
         student = get_object_or_404(Student, pk=pk)
         student.status = 'accepted'
@@ -91,7 +91,6 @@ def notification_accept(request, pk):
 @login_required(login_url='admin_login')
 def notification_reject(request, pk):
     if request.method == 'POST':
-        from enrollment.models import Student
         student = get_object_or_404(Student, pk=pk)
         student.status = 'rejected'
         Notification.objects.filter(student=student, is_read=False).update(is_read=True)

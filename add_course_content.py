@@ -17,7 +17,11 @@ print("Contenido previo limpiado.\n")
 # ============================================================
 # CURSO 1: Fundamentos de IA
 # ============================================================
-course1 = Course.objects.get(id=1)
+try:
+    course1 = Course.objects.get(id=1)
+except Course.DoesNotExist:
+    print(f"ERROR: Course with id=1 does not exist. Run update_courses.py first.")
+    exit(1)
 
 # --- Explicaciones ---
 CourseContent.objects.create(course=course1, section_type='explicacion', title='¿Qué es la Inteligencia Artificial?', content='''<h3>Definición de Inteligencia Artificial</h3>
@@ -233,7 +237,11 @@ print(f"Curso 1: {course1.title} - Contenido agregado")
 # ============================================================
 # CURSO 2: Machine Learning
 # ============================================================
-course2 = Course.objects.get(id=2)
+try:
+    course2 = Course.objects.get(id=2)
+except Course.DoesNotExist:
+    print(f"ERROR: Course with id=2 does not exist. Run update_courses.py first.")
+    exit(1)
 
 CourseContent.objects.create(course=course2, section_type='explicacion', title='Regresión Lineal y Logística', content='''<h3>Regresión Lineal</h3>
 <p>La regresión lineal modela la relación entre una variable dependiente (y) y una o más variables independientes (X). Es el algoritmo más fundamental del machine learning supervisado.</p>
@@ -450,7 +458,11 @@ print(f"Curso 2: {course2.title} - Contenido agregado")
 # ============================================================
 # CURSO 3: Redes Neuronales
 # ============================================================
-course3 = Course.objects.get(id=3)
+try:
+    course3 = Course.objects.get(id=3)
+except Course.DoesNotExist:
+    print(f"ERROR: Course with id=3 does not exist. Run update_courses.py first.")
+    exit(1)
 
 CourseContent.objects.create(course=course3, section_type='explicacion', title='Del Perceptrón a las Redes Profundas', content='''<h3>El Perceptrón (Rosenblatt, 1958)</h3>
 <p>El perceptrón es la unidad más básica de una red neuronal. Recibe entradas, las pondera, suma y aplica una función de activación:</p>
@@ -722,7 +734,11 @@ print(f"Curso 3: {course3.title} - Contenido agregado")
 # ============================================================
 # CURSO 4: Lenguaje Natural (NLP)
 # ============================================================
-course4 = Course.objects.get(id=4)
+try:
+    course4 = Course.objects.get(id=4)
+except Course.DoesNotExist:
+    print(f"ERROR: Course with id=4 does not exist. Run update_courses.py first.")
+    exit(1)
 
 CourseContent.objects.create(course=course4, section_type='explicacion', title='Tokenización, Stemming y Lematización', content='''<h3>Tokenización</h3>
 <p>Proceso de dividir texto en unidades más pequeñas (tokens). Tipos:</p>
@@ -999,7 +1015,11 @@ print(f"Curso 4: {course4.title} - Contenido agregado")
 # ============================================================
 # CURSO 5: Visión Computacional
 # ============================================================
-course5 = Course.objects.get(id=5)
+try:
+    course5 = Course.objects.get(id=5)
+except Course.DoesNotExist:
+    print(f"ERROR: Course with id=5 does not exist. Run update_courses.py first.")
+    exit(1)
 
 CourseContent.objects.create(course=course5, section_type='explicacion', title='Redes Convolucionales (CNN) desde cero', content='''<h3>¿Qué es una convolución?</h3>
 <p>Una convolución aplica un filtro (kernel) sobre una imagen para extraer características:</p>
@@ -1292,7 +1312,11 @@ print(f"Curso 5: {course5.title} - Contenido agregado")
 # ============================================================
 # CURSO 6: Proyecto Final
 # ============================================================
-course6 = Course.objects.get(id=6)
+try:
+    course6 = Course.objects.get(id=6)
+except Course.DoesNotExist:
+    print(f"ERROR: Course with id=6 does not exist. Run update_courses.py first.")
+    exit(1)
 
 CourseContent.objects.create(course=course6, section_type='explicacion', title='Definición del problema y recolección de datos', content='''<h3>Fase 1: Definición del problema</h3>
 <p>Todo proyecto de IA exitoso comienza con una definición clara del problema:</p>

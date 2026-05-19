@@ -180,7 +180,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     const CSRF = '{{ csrf_token }}';
-    let curId = null;
+    let editCurId = null; let deleteCurId = null;
 
     // ─── Sidebar active state (enhancement — CSS :target handles navigation) ─
     function updateActiveSidebar() {
@@ -258,7 +258,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.btn-ed').forEach(function(btn) {
         btn.addEventListener('click', function(e) {
             e.preventDefault();
-            curId = this.getAttribute('data-ed');
+            editCurId = this.getAttribute('data-ed');
             document.getElementById('en').value = this.getAttribute('data-name');
             document.getElementById('ee').value = this.getAttribute('data-email');
             document.getElementById('el').value = this.getAttribute('data-level');
@@ -270,9 +270,9 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.del-form').forEach(function(form) {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
-            curId = this.querySelector('[name=csrfmiddlewaretoken]').value;
+            deleteCurId = this.querySelector('[name=csrfmiddlewaretoken]').value;
             const row = this.closest('tr');
-            if (row) curId = row.getAttribute('data-id');
+            if (row) deleteCurId = row.getAttribute('data-id');
             document.getElementById('del-mo').classList.add('open');
             window._delForm = this;
         });
@@ -280,7 +280,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // ─── Save Edit ─────────────────────────────────────────────────────────
     document.querySelector('.save-edit-btn').addEventListener('click', function() {
-        fetch('/panel/estudiante/' + curId + '/editar/', {
+        fetch('{% url "student_edit" 0 %}'.replace('0', editCurId), {
             method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken':CSRF},
             body:JSON.stringify({
                 name:document.getElementById('en').value,
@@ -301,7 +301,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const url = delForm.getAttribute('action');
         const csrf = delForm.querySelector('[name=csrfmiddlewaretoken]').value;
         const row = delForm.closest('tr');
-        const sid = row ? row.getAttribute('data-id') : null;
         fetch(url, {method:'POST', headers:{'X-CSRFToken':csrf, 'X-Requested-With':'XMLHttpRequest'}})
         .then(function(r) { return r.json(); })
         .then(function(d) {
@@ -330,7 +329,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // ─── Utility functions ─────────────────────────────────────────────────
-    function closeMo() { document.querySelectorAll('.mo').forEach(function(m) { m.classList.remove('open'); }); curId=null; }
+    function closeMo() { document.querySelectorAll('.mo').forEach(function(m) { m.classList.remove('open'); }); editCurId=null; deleteCurId=null; }
 
     function showToast(msg,type){
         if (!type) type='ok';

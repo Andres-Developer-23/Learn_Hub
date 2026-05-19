@@ -23,7 +23,7 @@ Plataforma educativa integral para la gestión de cursos, estudiantes y evaluaci
 | Tecnología | Versión |
 |---|---|
 | Django | 6.0.5 |
-| Python | 3.14 |
+| Python | 3.12 |
 | PostgreSQL | 17 |
 | Gunicorn | — |
 | WhiteNoise | — |
@@ -160,7 +160,7 @@ python manage.py runserver
 | description | TextField | Descripción |
 | level | CharField | Nivel del curso |
 | image | ImageField | Imagen de portada |
-| instructor | CharField | Nombre del instructor |
+| instructor_name | CharField | Nombre del instructor |
 | created_at | DateTimeField | Fecha de creación |
 
 ### Exam
@@ -168,9 +168,9 @@ python manage.py runserver
 |---|---|---|
 | course | ForeignKey | Curso asociado |
 | title | CharField | Título del examen |
-| questions | JSONField | Preguntas y respuestas |
+| (Question model) | FK | Preguntas (modelo separado Question/QuestionOption) |
 | passing_score | IntegerField | Puntaje mínimo para aprobar |
-| time_limit | IntegerField | Límite de tiempo en minutos |
+| time_limit_minutes | IntegerField | Límite de tiempo en minutos |
 
 ## Flujo de Inscripción
 

@@ -48,7 +48,6 @@
     </div>
   </form>
 </div>
-<script src="{% static 'panel/js/exam_form.js' %}"></script>
 <script>
 var qCount = {% if exam %}{{ exam.questions.all|length }}{% else %}0{% endif %};
 function addQuestion() {

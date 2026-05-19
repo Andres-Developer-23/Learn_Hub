@@ -34,7 +34,7 @@
   <button class="ni" onclick="show('profile',this)"><span class="ic">👤</span><span>Mi Perfil</span></button>
   <button class="ni" onclick="show('security',this)"><span class="ic">🔒</span><span>Seguridad</span></button>
   <div class="ns">Recursos</div>
-  <a href="/" class="ni"><span class="ic">🌐</span><span>Sitio Web</span></a>
+  <a href="{% url 'index' %}" class="ni"><span class="ic">🌐</span><span>Sitio Web</span></a>
   <div class="sf">
     <div class="up">
       <div class="av">{{ request.user.username|slice:":1"|upper }}</div>
@@ -56,7 +56,7 @@
       <div class="banner-av">{{ request.user.username|slice:":1"|upper }}</div>
       <div class="banner-info">
         <h2>¡Hola, {{ student.name }}! 👋</h2>
-        <p>Tu inscripción al Curso de Inteligencia Artificial ha sido
+        <p>Tu inscripción ha sido
           <span class="badge b-{{ student.status }}">{{ student.get_status_display }}</span>.
           Nivel: <span class="badge b-{{ student.level }}">{{ student.get_level_display }}</span>
         </p>

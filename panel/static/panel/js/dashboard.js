@@ -1,5 +1,9 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const CSRF = '{{ csrf_token }}';
+    // WARNING: This file is NOT currently loaded by any template.
+// The inline <script> in dashboard.html contains the active code.
+// If you enable this file, ensure Django template syntax is removed
+// and use a meta tag or cookie-based CSRF approach.
+const CSRF = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
     let curId = null;
 
     function updateActiveSidebar() {
@@ -26,7 +30,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     data: {
                         labels: ['Principiante', 'Intermedio', 'Avanzado'],
                         datasets: [{
-                            data: [{{ principiante|default:0 }}, {{ intermedio|default:0 }}, {{ avanzado|default:0 }}],
+                            // TODO: These values must be passed from the template (e.g., via data attributes or inline JSON)
+data: [0, 0, 0],
                             backgroundColor: ['#4ade80', '#fbbf24', '#a78bfa'],
                             borderWidth: 0
                         }]

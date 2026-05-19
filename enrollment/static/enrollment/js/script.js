@@ -94,7 +94,14 @@ function openCourseSummary(courseId) {
         return;
     }
 
-    fetch('/api/course/' + courseId + '/')
+    // Use URL from data attribute (set in template via {% url 'course_detail_api' 0 %}) or fall back
+    var apiUrl = document.body.getAttribute('data-api-course-url');
+    if (!apiUrl) {
+        apiUrl = '/api/course/' + courseId + '/';
+    } else {
+        apiUrl = apiUrl.replace('0', courseId);
+    }
+    fetch(apiUrl)
         .then(function (res) {
             if (!res.ok) throw new Error('HTTP error ' + res.status);
             return res.json();
@@ -603,67 +610,21 @@ document.addEventListener('DOMContentLoaded', function() {
     // Create particles container
     createParticles();
     
-    // Create orb elements in hero
-    createHeroOrbs();
-    
-    // Initialize scroll-triggered animations
-    initScrollAnimations();
-    
-    // Add reveal classes to elements
-    addRevealClasses();
-    
-    // Initialize navbar scroll effect
-    initNavbarScroll();
+    // Only run landing-page animations if we're on the landing page (has .hero section)
+    if (document.querySelector('.hero')) {
+        // Create orb elements in hero
+        createHeroOrbs();
+        
+        // Initialize scroll-triggered animations
+        initScrollAnimations();
+        
+        // Add reveal classes to elements
+        addRevealClasses();
+        
+        // Initialize navbar scroll effect
+        initNavbarScroll();
+    }
 });
-
-// Create dynamic particles
-function createParticles() {
-    // Check if container exists
-    let container = document.getElementById('particles-bg');
-    if (!container) {
-        container = document.createElement('div');
-        container.id = 'particles-bg';
-        document.body.insertBefore(container, document.body.firstChild);
-    }
-    
-    // Create 25 particles
-    const particleCount = 25;
-    const colors = ['particle-accent', 'particle-purple', 'particle-teal', 'particle-white'];
-    const sizes = ['particle-small', 'particle-medium', 'particle-large'];
-    
-    for (let i = 0; i < particleCount; i++) {
-        const particle = document.createElement('div');
-        particle.className = `particle ${sizes[Math.floor(Math.random() * sizes.length)]} ${colors[Math.floor(Math.random() * colors.length)]}`;
-        
-        // Random positioning
-        particle.style.left = Math.random() * 100 + '%';
-        
-        // Random animation parameters
-        const duration = 15 + Math.random() * 20;
-        const delay = Math.random() * -duration;
-        const drift = (Math.random() - 0.5) * 100;
-        
-        particle.style.animationDuration = duration + 's';
-        particle.style.animationDelay = delay + 's';
-        particle.style.setProperty('--drift', drift + 'px');
-        particle.style.setProperty('--particle-opacity', (0.3 + Math.random() * 0.5).toString());
-        
-        container.appendChild(particle);
-    }
-    
-    // Add mouse interaction - particles follow cursor slightly
-    document.addEventListener('mousemove', function(e) {
-        const particles = document.querySelectorAll('.particle');
-        const x = e.clientX / window.innerWidth;
-        const y = e.clientY / window.innerHeight;
-        
-        particles.forEach((particle, index) => {
-            const moveX = (x - 0.5) * 30 * (index % 3 + 1);
-            const moveY = (y - 0.5) * 20 * (index % 2 + 1);
-            particle.style.transform = `translate(${moveX}px, ${moveY}px)`;
-        });
-    });
-}
 
 function createParticles() {
     const container = document.createElement('div');

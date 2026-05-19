@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
-<body>
+<body data-api-course-url="{% url 'course_detail_api' 0 %}">
     <header>
         <nav>
             <div class="logo">
@@ -241,7 +241,5 @@
     </footer>
 
     <script src="{% static 'enrollment/js/script.js' %}"></script>
-    <script src="{% static 'enrollment/js/code-runner.js' %}"></script>
-    <script src="{% static 'enrollment/js/console.js' %}"></script>
 </body>
 </html>
