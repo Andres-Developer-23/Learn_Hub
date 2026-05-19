@@ -17,3 +17,4 @@ p{color:var(--mu);font-size:.82rem;margin-bottom:1.5rem}
 .btn-primary:hover{transform:translateY(-2px)}
 .btn-cancel{background:rgba(255,255,255,0.05);color:var(--mu);border:1px solid var(--br)}
 .btn-cancel:hover{background:rgba(255,255,255,0.1);color:var(--tx)}
+@media(max-width:700px){body{padding:1rem}.card{padding:1.5rem}.ma{flex-direction:column}.btn{width:100%;justify-content:center}}

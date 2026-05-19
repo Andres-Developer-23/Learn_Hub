@@ -46,3 +46,4 @@ p { color: var(--mu); font-size: 0.85rem; margin-bottom: 1.8rem }
 }
 .msg.ok { background: rgba(34,197,94,0.15); border: 1px solid var(--ok); color: #4ade80; display: block }
 .msg.er { background: var(--err-bg); border: 1px solid var(--err); color: #f87171; display: block }
+@media (max-width: 700px) { body { padding: 1rem } .card { padding: 1.5rem } .ma { flex-direction: column } .btn { width: 100%; justify-content: center } }

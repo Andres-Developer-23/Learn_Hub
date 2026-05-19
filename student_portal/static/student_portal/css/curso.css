@@ -251,17 +251,25 @@ body {
 @media (max-width: 800px) {
     .content-grid { grid-template-columns: 1fr; }
     .sidebar { position: static; }
-    .top-nav { padding: 0.6rem 1rem; }
+    .top-nav { padding: 0.6rem 1rem; flex-wrap: wrap; gap: 0.5rem; }
+    .nav-right { order: -1; width: 100%; justify-content: flex-end; }
     .main-content { padding: 1.5rem 1rem 2rem; }
-    .course-hero { padding: 2rem 1rem 1.5rem; }
+    .course-hero { padding: 2rem 1rem 1.5rem; min-height: auto; }
     .course-hero h1 { font-size: 1.5rem; }
     .nav-user-name { display: none; }
+    .instructor-card { flex-direction: column; align-items: center; text-align: center; }
+    .item-actions { flex-direction: column; }
+    .attempt-item { flex-direction: column; gap: 0.3rem; text-align: center; }
 }
 @media (max-width: 500px) {
     .tabs { gap: 0; }
     .tab { padding: 0.5rem 0.7rem; font-size: 0.72rem; }
+    .tab i { display: none; }
     .exam-card { flex-wrap: wrap; }
     .exam-btn { width: 100%; text-align: center; }
+    .content-card-header { flex-direction: column; }
+    .file-card { flex-wrap: wrap; }
+    .file-dl { width: 100%; text-align: center; }
 }
 
 /* Syntax Highlighting - Code Blocks */

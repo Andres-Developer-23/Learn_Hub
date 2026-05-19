@@ -1,7 +1,7 @@
 :root{--bg:#060917;--bg-elevated:#0c0f24;--card:#0f1528;--acc:#60a5fa;--acc2:#3b82f6;--acc-glow:rgba(96,165,250,0.3);--ok:#4ade80;--ok-bg:rgba(74,222,128,0.15);--tx:#f1f5f9;--mu:#94a3b8;--br:rgba(255,255,255,0.06);--err:#fb7185;--err-bg:rgba(251,113,133,0.12);--warn:#fbbf24;--warn-bg:rgba(251,191,36,0.12);--purple:#c084fc}
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
 body{background:var(--bg);color:var(--tx);min-height:100vh;padding:2rem}
-.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;gap:1rem;flex-wrap:wrap}
 h1{font-size:1.5rem;font-weight:800;letter-spacing:-0.02em}
 h1 span{color:var(--acc)}
 .btn{padding:.55rem 1.15rem;border-radius:10px;font-size:.82rem;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:.4rem;transition:all .3s ease;border:none}
@@ -14,6 +14,7 @@ h1 span{color:var(--acc)}
 .btn-err:hover{background:rgba(244,63,94,0.25)}
 .card{background:var(--card);border:1px solid var(--br);border-radius:14px;overflow:hidden}
 table{width:100%;border-collapse:collapse}
+.card{overflow-x:auto;-webkit-overflow-scrolling:touch}
 thead th{padding:.8rem 1.5rem;text-align:left;font-size:.65rem;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--br);background:rgba(255,255,255,0.01)}
 tbody tr{transition:background .15s}
 tbody tr:hover{background:rgba(255,255,255,0.03)}
@@ -28,4 +29,13 @@ td{padding:.8rem 1.5rem;font-size:.85rem;border-bottom:1px solid var(--br)}
 .msg{padding:.75rem 1rem;border-radius:10px;font-size:.85rem;margin-bottom:1rem}
 .msg.success{background:var(--ok-bg);border:1px solid var(--ok);color:#4ade80}
 .msg.error{background:var(--err-bg);border:1px solid var(--err);color:#f87171}
-@media(max-width:700px){td,th{padding:.6rem .8rem}td:nth-child(3),th:nth-child(3){display:none}}
+@media(max-width:700px){
+  body{padding:1rem;padding-top:1.5rem}
+  .top{flex-direction:column;align-items:flex-start;gap:0.75rem;margin-bottom:1.5rem}
+  h1{font-size:1.25rem}
+  .card{overflow-x:auto}
+  table{min-width:600px}
+  td,th{padding:.6rem .8rem;font-size:.78rem}
+  td:nth-child(3),th:nth-child(3){display:none}
+  .btn-sm{padding:.3rem .55rem;font-size:.7rem}
+}

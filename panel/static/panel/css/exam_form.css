@@ -28,4 +28,11 @@ p{color:var(--mu);font-size:.82rem;margin-bottom:1.5rem}
 .btn-sm{padding:.35rem .7rem;font-size:.75rem}
 .btn-err{background:rgba(251,113,133,0.12);color:var(--err)}
 .btn-err:hover{background:rgba(251,113,133,0.25)}
-@media(max-width:700px){body{padding:1rem}.card{padding:1.5rem}}
+@media(max-width:700px){
+  body{padding:1rem}
+  .card{padding:1.5rem}
+  .opt-row{flex-wrap:wrap}
+  .opt-row input[type=text]{min-width:0}
+  .ma{flex-direction:column}
+  .btn{width:100%;justify-content:center}
+}
