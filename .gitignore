@@ -7,3 +7,4 @@ code_verifier.json
 .env
 venv/
 .venv/
+staticfiles/
