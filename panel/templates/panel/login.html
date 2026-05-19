@@ -56,6 +56,11 @@
                     </button>
                 </div>
             </div>
+            <div style="text-align:right;margin-bottom:1rem;animation:fadeUp .6s .25s both;">
+              <a href="{% url 'password_reset' %}" style="font-size:.78rem;color:var(--mu);text-decoration:none;transition:color .2s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color=''" onfocus="this.style.color='var(--accent)'" onblur="this.style.color=''" class="forgot-link">
+                <i class="fas fa-question-circle"></i> Olvidé mi contraseña
+              </a>
+            </div>
             <button type="submit" class="btn" id="submit-btn">
                 <span class="btn-text"><i class="fas fa-shield-halved"></i> Iniciar sesión</span>
                 <span class="btn-loading"><i class="fas fa-circle-notch fa-spin"></i> Verificando...</span>

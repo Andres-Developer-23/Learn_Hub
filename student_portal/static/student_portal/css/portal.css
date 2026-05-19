@@ -144,6 +144,8 @@ body::before {
 .remember input[type="checkbox"] {
     width: 16px; height: 16px; accent-color: var(--acc); cursor: pointer; border-radius: 4px;
 }
+.forgot-link { font-size: 0.78rem; color: var(--mu); text-decoration: none; transition: color .2s; display: inline-flex; align-items: center; gap: .35rem; }
+.forgot-link:hover { color: var(--acc); }
 
 .links { display: flex; justify-content: center; gap: 1.5rem; margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px solid var(--br); animation: fadeUp .6s .35s both; }
 .link { font-size: .82rem; color: var(--mu); text-decoration: none; transition: all .25s ease; display: flex; align-items: center; gap: .35rem; }
