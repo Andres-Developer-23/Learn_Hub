@@ -185,15 +185,15 @@
       <div style="background:var(--card);border:1px solid var(--br);border-radius:18px;padding:1.75rem;margin-bottom:1rem">
         <h3 style="font-size:0.85rem;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:1.25rem"><i class="fas fa-pen" style="color:var(--acc);margin-right:0.4rem"></i> Información editable</h3>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
-          <div class="field" style="margin:0">
+          <div class="field field-static" style="margin:0">
             <label><i class="fas fa-user" style="color:var(--acc);margin-right:0.3rem"></i> Nombre completo</label>
             <input type="text" id="pf-name" value="{{ student.name }}" placeholder="Tu nombre">
           </div>
-          <div class="field" style="margin:0">
+          <div class="field field-static" style="margin:0">
             <label><i class="fas fa-phone" style="color:var(--acc);margin-right:0.3rem"></i> Teléfono</label>
             <input type="text" id="pf-phone" value="{{ student.phone|default:'' }}" placeholder="Ej: +51 987 654 321">
           </div>
-          <div class="field" style="margin:0;grid-column:1/-1">
+          <div class="field field-static" style="margin:0;grid-column:1/-1">
             <label><i class="fas fa-map-marker-alt" style="color:var(--acc);margin-right:0.3rem"></i> Dirección</label>
             <input type="text" id="pf-address" value="{{ student.address|default:'' }}" placeholder="Tu dirección">
           </div>
