@@ -8,6 +8,8 @@ from django.contrib.auth.models import User
 import json
 from enrollment.models import Student, Course, CourseContent, Exam, Question, QuestionOption, ExamAttempt, CourseFile, EnrollmentRequest, ContentProgress
 from notificaciones.models import Notification
+from email_service.certificate import generate_certificate
+from email_service.services import send_certificate_email
 from django.utils import timezone
 
 
@@ -334,6 +336,67 @@ def take_exam(request, pk):
     return render(request, 'student_portal/examen.html', {
         'exam': exam, 'questions': questions, 'previous': previous
     })
+
+
+# ─── Certificate ─────────────────────────────────────────────────────────────
+
+@login_required(login_url='student_login')
+@never_cache
+def send_certificate(request, pk):
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'Metodo no permitido.'}, status=405)
+
+    if request.user.is_staff:
+        return JsonResponse({'status': 'error', 'message': 'Acceso denegado.'}, status=403)
+
+    try:
+        student = request.user.student
+    except Student.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Estudiante no encontrado.'}, status=404)
+
+    course = get_object_or_404(Course, pk=pk, is_active=True)
+
+    if course not in student.courses.all():
+        return JsonResponse({'status': 'error', 'message': 'No estas inscrito en este curso.'}, status=403)
+
+    total_contents = course.contents.count()
+    viewed_contents = ContentProgress.objects.filter(student=student, content__course=course).count()
+    all_content_viewed = total_contents > 0 and viewed_contents >= total_contents
+
+    exams = course.exams.all()
+    all_exams_passed = True
+    if exams.exists():
+        for exam in exams:
+            passed_attempt = exam.attempts.filter(student=student, passed=True).exists()
+            if not passed_attempt:
+                all_exams_passed = False
+                break
+    else:
+        all_exams_passed = True
+
+    if not all_content_viewed or not all_exams_passed:
+        missing = []
+        if not all_content_viewed:
+            missing.append(f"completar todo el contenido ({viewed_contents}/{total_contents})")
+        if not all_exams_passed:
+            missing.append("aprobar todos los examenes")
+        msg = "Debes " + " y ".join(missing) + " para obtener tu certificado."
+        return JsonResponse({'status': 'error', 'message': msg}, status=400)
+
+    try:
+        pdf_buffer = generate_certificate(student, course)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': f'Error al generar el certificado: {str(e)}'}, status=500)
+
+    try:
+        sent = send_certificate_email(student, course, pdf_buffer)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': f'Error al enviar el correo: {str(e)}'}, status=500)
+
+    if sent:
+        return JsonResponse({'status': 'success', 'message': 'Certificado enviado a tu correo electronico.'})
+    else:
+        return JsonResponse({'status': 'error', 'message': 'No se pudo enviar el certificado. Intenta mas tarde.'}, status=500)
 
 
 # ─── Exam Result ──────────────────────────────────────────────────────────────

@@ -4,6 +4,8 @@ import logging
 import os
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
 from pathlib import Path
 
 from django.conf import settings
@@ -86,6 +88,28 @@ def _save_token(token_path, credentials):
     }
     with open(token_path, 'w') as f:
         json.dump(token_data, f, indent=2)
+
+
+def _create_gmail_message_with_attachment(sender, to, subject, text_body, html_body, attachment_data, attachment_filename, attachment_mime='application/pdf'):
+    message = MIMEMultipart('mixed')
+    message['to'] = to
+    message['from'] = sender
+    message['subject'] = subject
+
+    body_part = MIMEMultipart('alternative')
+    body_part.attach(MIMEText(text_body, 'plain'))
+    if html_body:
+        body_part.attach(MIMEText(html_body, 'html'))
+    message.attach(body_part)
+
+    part = MIMEBase(attachment_mime.split('/')[0], attachment_mime.split('/')[1])
+    part.set_payload(attachment_data.getvalue())
+    encoders.encode_base64(part)
+    part.add_header('Content-Disposition', 'attachment', filename=attachment_filename)
+    message.attach(part)
+
+    raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode('utf-8')
+    return {'raw': raw_message}
 
 
 def _create_gmail_message(sender, to, subject, text_body, html_body=None):
@@ -435,6 +459,86 @@ def send_password_reset_email(subject, body, to_email):
             return _send_via_gmail_api(service, sender, to_email, subject, body)
 
     logger.warning("Gmail API no disponible para correo de recuperación")
+    return False
+
+
+def _send_via_gmail_api_with_attachment(service, sender, to, subject, text_body, html_body, attachment_data, attachment_filename):
+    try:
+        message = _create_gmail_message_with_attachment(
+            sender, to, subject, text_body, html_body,
+            attachment_data, attachment_filename
+        )
+        send_response = service.users().messages().send(
+            userId='me',
+            body=message
+        ).execute()
+        logger.info(f"Email con adjunto enviado exitosamente a {to}, mensaje ID: {send_response['id']}")
+        return True
+    except Exception as e:
+        logger.error(f"Error al enviar email con adjunto via Gmail API a {to}: {e}")
+        return False
+
+
+def send_certificate_email(student, course, pdf_buffer):
+    subject = f'Certificado de finalizacion - {course.title}'
+    sender = getattr(settings, 'DEFAULT_FROM_EMAIL', 'LearnHub <noreply@learnhub.com>')
+
+    filename = f"Certificado_{course.title}_{student.name}.pdf".replace(' ', '_')
+
+    text_body = f"""Hola {student.name}!
+
+Adjunto a este correo encontraras tu certificado de finalizacion del curso "{course.title}".
+
+Felicitaciones por completar exitosamente el curso! Sigue asi en tu camino de aprendizaje.
+
+Equipo LearnHub"""
+
+    content_html = f"""
+      <p style="color:#475569; font-size:16px; line-height:1.6; margin:0 0 20px 0;">
+        Hola <strong style="color:#1e293b;">{student.name}</strong>,
+      </p>
+      <p style="color:#475569; font-size:16px; line-height:1.6; margin:0 0 25px 0;">
+        &iexcl;Felicitaciones por completar el curso
+        <strong style="color:#4f46e5;">&ldquo;{course.title}&rdquo;</strong>!
+      </p>
+
+      <table width="100%" cellpadding="0" cellspacing="0" style="background:linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); border-radius:12px; margin:0 0 25px 0;">
+        <tr>
+          <td style="padding:25px; text-align:center;">
+            <div style="font-size:40px; margin-bottom:10px;">&#127891;</div>
+            <p style="color:#ffffff; font-size:18px; font-weight:700; margin:0 0 6px 0;">Certificado de Finalizacion</p>
+            <p style="color:rgba(255,255,255,0.85); font-size:14px; margin:0;">Tu certificado se encuentra adjunto a este correo.</p>
+          </td>
+        </tr>
+      </table>
+
+      <p style="color:#475569; font-size:15px; line-height:1.6; margin:0 0 10px 0;">
+        Has demostrado dedicacion y esfuerzo al completar este curso. Sigue asi en tu camino de aprendizaje.
+      </p>
+
+      <hr style="border:none; border-top:1px solid #e2e8f0; margin:25px 0;">
+
+      <p style="color:#64748b; font-size:14px; line-height:1.5; margin:0 0 5px 0;">
+        Si tienes alguna duda, contacta al administrador.
+      </p>
+      <p style="color:#475569; font-size:15px; line-height:1.5; margin:0;">
+        &iexcl;Sigue aprendiendo!
+      </p>
+      <p style="color:#1e293b; font-size:15px; font-weight:600; margin:5px 0 0 0;">
+        Equipo LearnHub
+      </p>"""
+
+    html_body = _build_html_template('&iexcl;Certificado de Finalizacion!', content_html)
+
+    if getattr(settings, 'GMAIL_API_ENABLED', False):
+        service = _get_gmail_service()
+        if service:
+            return _send_via_gmail_api_with_attachment(
+                service, sender, student.email, subject, text_body, html_body,
+                pdf_buffer, filename
+            )
+
+    logger.warning("Gmail API no disponible para enviar certificado")
     return False
 
 
