@@ -1,5 +1,7 @@
 from django.contrib import admin
-from .models import Student, Course, CourseContent, Exam, Question, QuestionOption, ExamAttempt, CourseFile, EnrollmentRequest
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.models import User
+from .models import Student, Course, CourseContent, Exam, Question, QuestionOption, ExamAttempt, CourseFile, EnrollmentRequest, Instructor
 
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
@@ -49,3 +51,31 @@ class EnrollmentRequestAdmin(admin.ModelAdmin):
     search_fields = ('student__name', 'student__email', 'course__title')
     ordering = ('-created_at',)
     raw_id_fields = ('student', 'course')
+
+
+class InstructorInline(admin.StackedInline):
+    model = Instructor
+    can_delete = False
+    verbose_name = 'Perfil de instructor'
+    verbose_name_plural = 'Instructores'
+    fields = ('name', 'email', 'bio', 'avatar_url')
+
+
+admin.site.unregister(User)
+
+
+@admin.register(User)
+class UserAdmin(BaseUserAdmin):
+    inlines = (InstructorInline,)
+
+
+@admin.register(Instructor)
+class InstructorAdmin(admin.ModelAdmin):
+    list_display = ('name', 'email', 'user_link', 'created_at')
+    search_fields = ('name', 'email', 'user__username')
+    raw_id_fields = ('user',)
+
+    def user_link(self, obj):
+        from django.utils.html import format_html
+        return format_html('<a href="/admin/auth/user/{}/change/">{}</a>', obj.user_id, obj.user.username)
+    user_link.short_description = 'Usuario'
