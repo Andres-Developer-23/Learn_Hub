@@ -361,6 +361,9 @@ function submitEnrollmentForm(event) {
 }
 
 function getCsrfToken() {
+    const metaToken = document.querySelector('meta[name="csrf-token"]');
+    if (metaToken) return metaToken.getAttribute('content');
+    
     const cookies = document.cookie.split(';');
     for (let i = 0; i < cookies.length; i++) {
         const cookie = cookies[i].trim();
@@ -503,6 +506,7 @@ function createModalHTML(modal) {
             <p style="color: #94a3b8; margin-bottom: 2rem; font-size: 0.9rem;">Completa tus datos para comenzar tu prueba gratuita</p>
 
             <form id="enrollment-form" onsubmit="submitEnrollmentForm(event)">
+                <input type="hidden" name="csrfmiddlewaretoken" value="${document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''}">
                 <div class="form-group" style="margin-bottom: 1.1rem;">
                     <label for="enroll-name" style="display: block; margin-bottom: 0.4rem; color: #94a3b8; font-weight: 600; font-size: 0.82rem;">Nombre completo</label>
                     <input type="text" id="enroll-name" name="name" placeholder="Ej: Juan Pérez" required style="
