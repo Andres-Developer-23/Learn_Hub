@@ -19,6 +19,8 @@ print("Contenido previo limpiado.\n")
 # ============================================================
 try:
     course1 = Course.objects.get(id=1)
+    course1.category = 'inteligencia-artificial'
+    course1.save()
 except Course.DoesNotExist:
     print(f"ERROR: Course with id=1 does not exist. Run update_courses.py first.")
     exit(1)
@@ -239,6 +241,8 @@ print(f"Curso 1: {course1.title} - Contenido agregado")
 # ============================================================
 try:
     course2 = Course.objects.get(id=2)
+    course2.category = 'inteligencia-artificial'
+    course2.save()
 except Course.DoesNotExist:
     print(f"ERROR: Course with id=2 does not exist. Run update_courses.py first.")
     exit(1)
@@ -460,6 +464,8 @@ print(f"Curso 2: {course2.title} - Contenido agregado")
 # ============================================================
 try:
     course3 = Course.objects.get(id=3)
+    course3.category = 'inteligencia-artificial'
+    course3.save()
 except Course.DoesNotExist:
     print(f"ERROR: Course with id=3 does not exist. Run update_courses.py first.")
     exit(1)
@@ -736,6 +742,8 @@ print(f"Curso 3: {course3.title} - Contenido agregado")
 # ============================================================
 try:
     course4 = Course.objects.get(id=4)
+    course4.category = 'inteligencia-artificial'
+    course4.save()
 except Course.DoesNotExist:
     print(f"ERROR: Course with id=4 does not exist. Run update_courses.py first.")
     exit(1)
@@ -1017,6 +1025,8 @@ print(f"Curso 4: {course4.title} - Contenido agregado")
 # ============================================================
 try:
     course5 = Course.objects.get(id=5)
+    course5.category = 'inteligencia-artificial'
+    course5.save()
 except Course.DoesNotExist:
     print(f"ERROR: Course with id=5 does not exist. Run update_courses.py first.")
     exit(1)
@@ -1314,6 +1324,8 @@ print(f"Curso 5: {course5.title} - Contenido agregado")
 # ============================================================
 try:
     course6 = Course.objects.get(id=6)
+    course6.category = 'inteligencia-artificial'
+    course6.save()
 except Course.DoesNotExist:
     print(f"ERROR: Course with id=6 does not exist. Run update_courses.py first.")
     exit(1)

@@ -8,12 +8,21 @@ class Course(models.Model):
         ('intermedio',   'Intermedio'),
         ('avanzado',     'Avanzado'),
     ]
+    CATEGORY_CHOICES = [
+        ('desarrollo-web',      'Desarrollo Web'),
+        ('inteligencia-artificial', 'Inteligencia Artificial'),
+        ('ciencia-de-datos',    'Ciencia de Datos'),
+        ('desarrollo-movil',    'Desarrollo Móvil'),
+        ('diseno-ux-ui',        'Diseño UX/UI'),
+        ('cloud-devops',        'Cloud & DevOps'),
+    ]
     title = models.CharField(max_length=200)
     description = models.TextField()
     icon = models.CharField(max_length=50, default='📚')
     image = models.ImageField(upload_to='course_images/', blank=True, null=True)
     duration = models.CharField(max_length=100, default='16 semanas')
     level = models.CharField(max_length=20, choices=LEVEL_CHOICES, default='principiante')
+    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, blank=True, null=True, verbose_name='Categoría')
     instructor_name = models.CharField(max_length=150, default='Instructor')
     instructor_bio = models.TextField(blank=True, default='')
     instructor_avatar_url = models.CharField(max_length=500, blank=True, default='')

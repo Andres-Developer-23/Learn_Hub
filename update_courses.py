@@ -24,6 +24,7 @@ cursos_data = [
             'Especialista en fundamentos de machine learning y ética en IA.'
         ),
         'instructor_avatar_url': 'https://ui-avatars.com/api/?name=Maria+Vasquez&background=0D8ABC&color=fff&size=200',
+        'category': 'inteligencia-artificial',
     },
     {
         'id': 2,
@@ -130,6 +131,7 @@ for data in cursos_data:
     course.instructor_name = data['instructor_name']
     course.instructor_bio = data['instructor_bio']
     course.instructor_avatar_url = data['instructor_avatar_url']
+    course.category = data.get('category', course.category)
     course.save()
     print(f'Actualizado: {course.title} (nivel: {course.level})')
 

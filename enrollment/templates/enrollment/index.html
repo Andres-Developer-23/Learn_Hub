@@ -100,55 +100,27 @@
                 <p>Encuentra el curso perfecto según tu interés</p>
             </div>
             <div class="categories-grid">
-                <div class="category-card">
-                    <div class="category-icon" style="background: linear-gradient(135deg, #60a5fa, #3b82f6);">
-                        <i class="fas fa-code"></i>
+                {% for cat in categories_meta %}
+                <a href="?categoria={{ cat.slug }}#cursos" class="category-card">
+                    <div class="category-icon" style="background: {{ cat.color }};">
+                        <i class="fas {{ cat.icon }}"></i>
                     </div>
-                    <h3>Desarrollo Web</h3>
-                    <p>25 cursos</p>
-                </div>
-                <div class="category-card">
-                    <div class="category-icon" style="background: linear-gradient(135deg, #34d399, #10b981);">
-                        <i class="fas fa-brain"></i>
-                    </div>
-                    <h3>Inteligencia Artificial</h3>
-                    <p>18 cursos</p>
-                </div>
-                <div class="category-card">
-                    <div class="category-icon" style="background: linear-gradient(135deg, #a78bfa, #7c3aed);">
-                        <i class="fas fa-database"></i>
-                    </div>
-                    <h3>Ciencia de Datos</h3>
-                    <p>22 cursos</p>
-                </div>
-                <div class="category-card">
-                    <div class="category-icon" style="background: linear-gradient(135deg, #fbbf24, #f59e0b);">
-                        <i class="fas fa-mobile-alt"></i>
-                    </div>
-                    <h3>Desarrollo Móvil</h3>
-                    <p>15 cursos</p>
-                </div>
-                <div class="category-card">
-                    <div class="category-icon" style="background: linear-gradient(135deg, #f472b6, #ec4899);">
-                        <i class="fas fa-palette"></i>
-                    </div>
-                    <h3>Diseño UX/UI</h3>
-                    <p>12 cursos</p>
-                </div>
-                <div class="category-card">
-                    <div class="category-icon" style="background: linear-gradient(135deg, #22d3ee, #06b6d4);">
-                        <i class="fas fa-cloud"></i>
-                    </div>
-                    <h3>Cloud & DevOps</h3>
-                    <p>20 cursos</p>
-                </div>
+                    <h3>{{ cat.name }}</h3>
+                    <p>{{ cat.count }} curso{{ cat.count|pluralize }}</p>
+                </a>
+                {% endfor %}
             </div>
         </section>
 
         <section id="cursos" class="courses-section">
             <div class="section-header">
+                {% if active_category %}
+                {% for cat in categories_meta %}{% if cat.slug == active_category %}<h2>Cursos de {{ cat.name }}</h2>{% endif %}{% endfor %}
+                <p><a href="{% url 'index' %}#cursos" class="clear-filter"><i class="fas fa-times"></i> Mostrar todos los cursos</a></p>
+                {% else %}
                 <h2>Cursos destacados</h2>
                 <p>Los cursos más populares de nuestra plataforma</p>
+                {% endif %}
             </div>
             <div class="courses-grid">
                 {% for course in featured_courses %}
@@ -224,7 +196,7 @@
                 {% endfor %}
             </div>
             <div class="view-all-container">
-                <button class="view-all-btn" onclick="showEnrollmentForm()">Ver todos los cursos <i class="fas fa-arrow-right"></i></button>
+                <a href="#categorias" class="view-all-btn">Explorar por categoría <i class="fas fa-arrow-right"></i></a>
             </div>
         </section>
 

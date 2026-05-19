@@ -23,7 +23,7 @@ def main():
             title='Regresión Lineal',
             defaults=dict(
                 description="""La regresión lineal es el algoritmo fundacional del machine learning supervisado. Aprenderás desde los fundamentos matemáticos (MCO, gradiente descendente) hasta implementaciones prácticas con Python y scikit-learn. Incluye regresión simple, múltiple, polinomial y regularización (Ridge, Lasso, Elastic Net). Cada concepto se refuerza con ejemplos numéricos verificables y código funcional.""",
-                icon='📈', duration='10 semanas', level='principiante',
+                icon='📈', duration='10 semanas', level='principiante', category='ciencia-de-datos',
                 instructor_name='Andrés Bravo',
                 instructor_bio='Ingeniero de Machine Learning especializado en modelado predictivo y sistemas de aprendizaje automático. Experiencia en implementación de modelos de regresión para aplicaciones financieras y de salud.',
                 instructor_avatar_url='', is_active=True, order=7,
@@ -555,7 +555,7 @@ for grado in grados:
             title='Algoritmo Genético',
             defaults=dict(
                 description="""Los algoritmos genéticos son técnicas de optimización inspiradas en la evolución natural de Darwin. Este curso cubre desde los fundamentos biológicos (selección, cruce, mutación) hasta implementaciones prácticas en Python para resolver problemas reales de optimización. Incluye codificación binaria y real, selección por torneo y ruleta, cruce de uno y dos puntos, mutación, elitismo, y aplicaciones como el problema del viajante (TSP) y optimización de funciones.""",
-                icon='🧬', duration='10 semanas', level='intermedio',
+                icon='🧬', duration='10 semanas', level='intermedio', category='inteligencia-artificial',
                 instructor_name='Andrés Bravo',
                 instructor_bio='Ingeniero de Machine Learning especializado en optimización evolutiva y metaheurísticas. Experiencia en algoritmos genéticos para problemas de optimización combinatoria y diseño de ingeniería.',
                 instructor_avatar_url='', is_active=True, order=8,

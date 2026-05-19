@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.contrib import messages
+from django.db.models import Count
 from .models import Student, Course, CourseContent, Exam, CourseFile, Question
 from notificaciones.models import Notification
 import json
@@ -52,6 +53,11 @@ def course_detail_api(request, course_id):
 
 def index(request):
     courses = Course.objects.filter(is_active=True).order_by('order')
+    
+    category = request.GET.get('categoria')
+    if category:
+        courses = courses.filter(category=category)
+    
     featured_courses = courses[:6]
     
     if request.method == 'POST':
@@ -86,7 +92,23 @@ def index(request):
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
 
+    category_counts = dict(
+        Course.objects.filter(is_active=True, category__isnull=False)
+        .values('category').annotate(count=Count('id'))
+        .values_list('category', 'count')
+    )
+    categories_meta = [
+        {'slug': 'desarrollo-web', 'name': 'Desarrollo Web', 'count': category_counts.get('desarrollo-web', 0), 'icon': 'fa-code', 'color': 'linear-gradient(135deg, #60a5fa, #3b82f6)'},
+        {'slug': 'inteligencia-artificial', 'name': 'Inteligencia Artificial', 'count': category_counts.get('inteligencia-artificial', 0), 'icon': 'fa-brain', 'color': 'linear-gradient(135deg, #34d399, #10b981)'},
+        {'slug': 'ciencia-de-datos', 'name': 'Ciencia de Datos', 'count': category_counts.get('ciencia-de-datos', 0), 'icon': 'fa-database', 'color': 'linear-gradient(135deg, #a78bfa, #7c3aed)'},
+        {'slug': 'desarrollo-movil', 'name': 'Desarrollo Móvil', 'count': category_counts.get('desarrollo-movil', 0), 'icon': 'fa-mobile-alt', 'color': 'linear-gradient(135deg, #fbbf24, #f59e0b)'},
+        {'slug': 'diseno-ux-ui', 'name': 'Diseño UX/UI', 'count': category_counts.get('diseno-ux-ui', 0), 'icon': 'fa-palette', 'color': 'linear-gradient(135deg, #f472b6, #ec4899)'},
+        {'slug': 'cloud-devops', 'name': 'Cloud & DevOps', 'count': category_counts.get('cloud-devops', 0), 'icon': 'fa-cloud', 'color': 'linear-gradient(135deg, #22d3ee, #06b6d4)'},
+    ]
+
     return render(request, 'enrollment/index.html', {
         'courses': courses,
-        'featured_courses': featured_courses
+        'featured_courses': featured_courses,
+        'categories_meta': categories_meta,
+        'active_category': category,
     })

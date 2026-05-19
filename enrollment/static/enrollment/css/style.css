@@ -391,6 +391,21 @@ nav.scrolled {
     border: 1px solid var(--card-border);
     position: relative;
     overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.clear-filter {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+}
+
+.clear-filter:hover {
+    color: var(--accent-hover);
+    text-decoration: underline;
 }
 
 .category-card::before {
@@ -2164,6 +2179,9 @@ footer {
 .category-card {
     position: relative;
     overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    display: block;
 }
 
 .category-card::after {
