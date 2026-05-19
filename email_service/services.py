@@ -424,6 +424,19 @@ Equipo LearnHub"""
     return False
 
 
+def send_password_reset_email(subject, body, to_email):
+    """Envía un email de recuperación de contraseña usando la Gmail API."""
+    sender = getattr(settings, 'DEFAULT_FROM_EMAIL', 'LearnHub <noreply@learnhub.com>')
+
+    if getattr(settings, 'GMAIL_API_ENABLED', False):
+        service = _get_gmail_service()
+        if service:
+            return _send_via_gmail_api(service, sender, to_email, subject, body)
+
+    logger.warning("Gmail API no disponible para correo de recuperación")
+    return False
+
+
 def send_enrollment_rejected_email(enrollment):
     """
     Envía un email al estudiante cuando su inscripción a un curso es rechazada.

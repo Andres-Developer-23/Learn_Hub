@@ -15,10 +15,11 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.contrib.auth import views as auth_views
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.auth import views as auth_views
+from .views import GmailAPIPasswordResetView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -30,7 +31,7 @@ urlpatterns = [
 
     # Password Reset
     path('password-reset/',
-         auth_views.PasswordResetView.as_view(
+         GmailAPIPasswordResetView.as_view(
              template_name='registration/password_reset_form.html',
              email_template_name='registration/password_reset_email.html',
              subject_template_name='registration/password_reset_subject.txt',
