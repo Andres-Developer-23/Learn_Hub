@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.cache import never_cache
 from django.contrib import messages
 from django.http import JsonResponse
 from django.contrib.auth.models import User
@@ -47,6 +48,7 @@ def student_logout(request):
 
 
 @login_required(login_url='student_login')
+@never_cache
 def student_dashboard(request):
     """Main student portal dashboard."""
     if request.user.is_staff:
@@ -72,6 +74,7 @@ def student_dashboard(request):
 
 
 @login_required(login_url='student_login')
+@never_cache
 def student_update_profile(request):
     """Allow student to update their profile."""
     if request.method == 'POST':
@@ -124,6 +127,7 @@ def student_update_profile(request):
 
 
 @login_required(login_url='student_login')
+@never_cache
 def student_enroll_course(request):
     """Request enrollment in a course (requires admin approval)."""
     if request.method == 'POST':
@@ -161,6 +165,7 @@ def student_enroll_course(request):
 
 
 @login_required(login_url='student_login')
+@never_cache
 def student_change_password(request):
     """Allow student to change their password."""
     if request.method == 'POST':
@@ -191,6 +196,7 @@ def student_change_password(request):
 # ─── Course Detail ────────────────────────────────────────────────────────────
 
 @login_required(login_url='student_login')
+@never_cache
 def course_detail(request, pk):
     if request.user.is_staff:
         return redirect('admin_dashboard')
@@ -225,6 +231,7 @@ def course_detail(request, pk):
 # ─── Notifications ─────────────────────────────────────────────────────────────
 
 @login_required(login_url='student_login')
+@never_cache
 def student_mark_read(request, pk):
     if request.method == 'POST':
         notif = get_object_or_404(Notification, pk=pk, student__user=request.user)
@@ -235,6 +242,7 @@ def student_mark_read(request, pk):
 
 
 @login_required(login_url='student_login')
+@never_cache
 def student_mark_all_read(request):
     if request.method == 'POST':
         Notification.objects.filter(student__user=request.user, is_read=False).update(is_read=True)
@@ -243,6 +251,7 @@ def student_mark_all_read(request):
 
 
 @login_required(login_url='student_login')
+@never_cache
 def student_notifications_count(request):
     count = Notification.objects.filter(student__user=request.user, is_read=False).count()
     return JsonResponse({'count': count})
@@ -251,6 +260,7 @@ def student_notifications_count(request):
 # ─── Take Exam ────────────────────────────────────────────────────────────────
 
 @login_required(login_url='student_login')
+@never_cache
 def take_exam(request, pk):
     if request.user.is_staff:
         return redirect('admin_dashboard')
@@ -288,6 +298,7 @@ def take_exam(request, pk):
 # ─── Exam Result ──────────────────────────────────────────────────────────────
 
 @login_required(login_url='student_login')
+@never_cache
 def exam_result(request, pk, attempt_pk):
     if request.user.is_staff:
         return redirect('admin_dashboard')

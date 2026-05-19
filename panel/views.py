@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.cache import never_cache
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponse
 from django.db.models import Count
@@ -35,6 +36,7 @@ def admin_logout(request):
 # ─── Dashboard ────────────────────────────────────────────────────────────────
 
 @login_required(login_url='admin_login')
+@never_cache
 def dashboard(request):
     total    = Student.objects.count()
     by_level = Student.objects.values('level').annotate(total=Count('level'))
@@ -71,6 +73,7 @@ def dashboard(request):
 # ─── Student CRUD ─────────────────────────────────────────────────────────────
 
 @login_required(login_url='admin_login')
+@never_cache
 def student_delete(request, pk):
     if request.method == 'POST':
         get_object_or_404(Student, pk=pk).delete()
@@ -81,6 +84,7 @@ def student_delete(request, pk):
 
 
 @login_required(login_url='admin_login')
+@never_cache
 def student_edit(request, pk):
     student = get_object_or_404(Student, pk=pk)
     if request.method == 'GET':
@@ -113,6 +117,7 @@ def student_edit(request, pk):
 # ─── Export ───────────────────────────────────────────────────────────────────
 
 @login_required(login_url='admin_login')
+@never_cache
 def export_csv(request):
     response = HttpResponse(content_type='text/csv; charset=utf-8')
     response['Content-Disposition'] = 'attachment; filename="inscritos.csv"'
@@ -132,12 +137,14 @@ def export_csv(request):
 # ─── Courses ──────────────────────────────────────────────────────────────────
 
 @login_required(login_url='admin_login')
+@never_cache
 def course_list(request):
     courses = Course.objects.all().order_by('order')
     return render(request, 'panel/course_list.html', {'courses': courses})
 
 
 @login_required(login_url='admin_login')
+@never_cache
 def course_create(request):
     if request.method == 'POST':
         title = request.POST.get('title', '').strip()
@@ -162,6 +169,7 @@ def course_create(request):
 
 
 @login_required(login_url='admin_login')
+@never_cache
 def course_edit(request, pk):
     course = get_object_or_404(Course, pk=pk)
     if request.method == 'POST':
@@ -181,6 +189,7 @@ def course_edit(request, pk):
 
 
 @login_required(login_url='admin_login')
+@never_cache
 def course_delete(request, pk):
     if request.method == 'POST':
         get_object_or_404(Course, pk=pk).delete()
@@ -189,6 +198,7 @@ def course_delete(request, pk):
 
 
 @login_required(login_url='admin_login')
+@never_cache
 def course_detail(request, pk):
     course = get_object_or_404(Course, pk=pk)
     contents = course.contents.select_related('course').all()
@@ -202,6 +212,7 @@ def course_detail(request, pk):
 # ─── Course Content ───────────────────────────────────────────────────────────
 
 @login_required(login_url='admin_login')
+@never_cache
 def content_create(request, pk):
     course = get_object_or_404(Course, pk=pk)
     if request.method == 'POST':
@@ -225,6 +236,7 @@ def content_create(request, pk):
 
 
 @login_required(login_url='admin_login')
+@never_cache
 def content_delete(request, pk):
     if request.method == 'POST':
         obj = get_object_or_404(CourseContent, pk=pk)
@@ -238,6 +250,7 @@ def content_delete(request, pk):
 # ─── Exams ────────────────────────────────────────────────────────────────────
 
 @login_required(login_url='admin_login')
+@never_cache
 def exam_create(request, pk):
     course = get_object_or_404(Course, pk=pk)
     if request.method == 'POST':
@@ -271,6 +284,7 @@ def exam_create(request, pk):
 
 
 @login_required(login_url='admin_login')
+@never_cache
 def exam_edit(request, pk):
     exam = get_object_or_404(Exam, pk=pk)
     if request.method == 'POST':
@@ -314,6 +328,7 @@ def exam_edit(request, pk):
 
 
 @login_required(login_url='admin_login')
+@never_cache
 def exam_delete(request, pk):
     if request.method == 'POST':
         exam = get_object_or_404(Exam, pk=pk)
@@ -327,6 +342,7 @@ def exam_delete(request, pk):
 # ─── Files ────────────────────────────────────────────────────────────────────
 
 @login_required(login_url='admin_login')
+@never_cache
 def file_upload(request, pk):
     course = get_object_or_404(Course, pk=pk)
     if request.method == 'POST':
@@ -342,6 +358,7 @@ def file_upload(request, pk):
 
 
 @login_required(login_url='admin_login')
+@never_cache
 def file_delete(request, pk):
     if request.method == 'POST':
         cf = get_object_or_404(CourseFile, pk=pk)
@@ -353,6 +370,7 @@ def file_delete(request, pk):
 
 
 @login_required(login_url='admin_login')
+@never_cache
 def notifications_view(request):
     pending_students = Student.objects.filter(status='pending').order_by('-created_at')
     pending_enrollments = EnrollmentRequest.objects.filter(status='pending').select_related('student', 'course').order_by('-created_at')
@@ -380,6 +398,7 @@ def notifications_view(request):
 
 
 @login_required(login_url='admin_login')
+@never_cache
 def enrollment_accept(request, pk):
     if request.method == 'POST':
         try:
@@ -412,6 +431,7 @@ def enrollment_accept(request, pk):
 
 
 @login_required(login_url='admin_login')
+@never_cache
 def enrollment_reject(request, pk):
     if request.method == 'POST':
         try:
