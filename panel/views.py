@@ -421,8 +421,7 @@ def enrollment_accept(request, pk):
             student=enrollment.student,
             title='Inscripción al curso aprobada',
             message=f'{enrollment.student.name}, tu solicitud para el curso "{enrollment.course.title}" ha sido aceptada.',
-            notif_type='success',
-            is_read=True
+            notif_type='success'
         )
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({'status': 'success'})

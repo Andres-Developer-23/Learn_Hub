@@ -74,7 +74,7 @@ def notification_accept(request, pk):
             msg += f' Tus credenciales son: Usuario: {credentials["username"]}, Contraseña: {credentials["password"]}'
         Notification.objects.create(
             student=student, title='Inscripción aprobada',
-            message=msg, notif_type='success', is_read=True
+            message=msg, notif_type='success'
         )
 
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -99,7 +99,7 @@ def notification_reject(request, pk):
         Notification.objects.create(
             student=student, title='Inscripción rechazada',
             message=f'{student.name}, tu solicitud de inscripción ha sido rechazada. Contacta al administrador para más información.',
-            notif_type='error', is_read=True
+            notif_type='error'
         )
 
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
