@@ -1,6 +1,7 @@
 import base64
 import json
 import logging
+import os
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from pathlib import Path
@@ -57,13 +58,19 @@ def _get_gmail_service():
 
 
 def _load_token_info(token_path):
-    """Carga la información del token desde un archivo JSON."""
+    """Carga la información del token desde archivo JSON o variable de entorno."""
     token_file = Path(token_path)
-    if not token_file.exists():
-        raise FileNotFoundError(f"Token file no encontrado: {token_path}")
     
-    with open(token_file, 'r') as f:
-        return json.load(f)
+    if token_file.exists():
+        with open(token_file, 'r') as f:
+            return json.load(f)
+    
+    token_env = os.environ.get('GMAIL_API_TOKEN_JSON')
+    if token_env:
+        logger.info("Cargando token de Gmail API desde variable de entorno")
+        return json.loads(token_env)
+    
+    raise FileNotFoundError(f"Token file no encontrado: {token_path} y variable GMAIL_API_TOKEN_JSON no configurada")
 
 
 def _save_token(token_path, credentials):

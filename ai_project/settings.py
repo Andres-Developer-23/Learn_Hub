@@ -139,5 +139,8 @@ EMAIL_HOST_PASSWORD = 'sisxjpeqltgsytlk'
 DEFAULT_FROM_EMAIL = 'LearnHub <andrresbravo15@gmail.com>'
 EMAIL_TIMEOUT = 30
 
-# Gmail API Configuration (disabled - using SMTP instead)
-GMAIL_API_ENABLED = False
+# Gmail API Configuration
+GMAIL_API_ENABLED = True
+GMAIL_API_CREDENTIALS_FILE = BASE_DIR / 'client_secret_620518173132-qtioo9hdcvl506h4a0dopv53784ol298.apps.googleusercontent.com.json'
+GMAIL_API_TOKEN_FILE = BASE_DIR / 'token.json'
+GMAIL_API_SCOPES = ['https://www.googleapis.com/auth/gmail.send']
