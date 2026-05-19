@@ -63,31 +63,16 @@
         badge.style.cssText = 'font-size:0.75rem;font-weight:600;color:var(--accent);display:flex;align-items:center;gap:0.4rem;';
         badge.innerHTML = '<i class="fab fa-python"></i> Python';
 
-        var runBtn = document.createElement('button');
-        runBtn.className = 'code-runner-btn';
-        runBtn.style.cssText = 'padding:0.35rem 0.85rem;border-radius:6px;border:1px solid var(--accent);background:transparent;color:var(--accent);font-size:0.75rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:0.4rem;transition:all 0.2s;';
-        runBtn.innerHTML = '<i class="fas fa-play" style="font-size:0.65rem"></i> Ejecutar';
-
         var output = document.createElement('div');
         output.className = 'code-runner-output';
         output.style.cssText = 'display:none;';
 
-        runBtn.addEventListener('mouseenter', function () {
-            runBtn.style.cssText = runBtn.style.cssText + 'background:var(--accent);color:white;';
-        });
-        runBtn.addEventListener('mouseleave', function () {
-            runBtn.style.cssText = 'padding:0.35rem 0.85rem;border-radius:6px;border:1px solid var(--accent);background:transparent;color:var(--accent);font-size:0.75rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:0.4rem;transition:all 0.2s;';
-        });
-
         header.appendChild(badge);
-        header.appendChild(runBtn);
         wrapper.appendChild(header);
 
         preEl.parentNode.insertBefore(wrapper, preEl);
         wrapper.appendChild(preEl);
         wrapper.appendChild(output);
-
-        runBtn.addEventListener('click', function () { runCode(preEl, output, runBtn); });
     }
 
     function needsPackage(code) {
