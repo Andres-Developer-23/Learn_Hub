@@ -80,6 +80,7 @@ body { background: var(--bg-color); color: var(--text-primary); font-family: 'In
     background: var(--card-bg); border: 1px solid var(--card-border);
     border-radius: 16px; padding: 1.25rem; margin-bottom: 1rem;
 }
+.sidebar-card:first-child { border-top: 3px solid var(--accent); }
 .sidebar-card h3 {
     font-size: 0.85rem; font-weight: 700; color: var(--text-primary);
     margin-bottom: 0.8rem; padding-bottom: 0.6rem;
@@ -99,8 +100,9 @@ body { background: var(--bg-color); color: var(--text-primary); font-family: 'In
     text-align: center; font-size: 0.82rem; font-weight: 700;
     background: linear-gradient(135deg, var(--accent), #3b7df0);
     color: white; text-decoration: none; transition: all 0.2s; margin-top: 0.5rem;
+    box-shadow: 0 4px 15px var(--accent-glow);
 }
-.sidebar-cta:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.sidebar-cta:hover { filter: brightness(1.08); transform: translateY(-2px); box-shadow: 0 8px 24px var(--accent-glow); }
 
 .footer { text-align: center; padding: 1.5rem; color: var(--text-muted); font-size: 0.75rem; border-top: 1px solid var(--card-border); }
 

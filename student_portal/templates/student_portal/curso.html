@@ -79,7 +79,7 @@
                 {% if tab == 'explicacion' or tab == 'ejemplo' or tab == 'demo' %}
                 <div class="content-list">
                     {% for c in contents %}
-                    <div class="content-card">
+                    <div class="content-card type-{{ c.section_type }}">
                         <div class="content-card-header">
                             <div class="content-number">{{ forloop.counter }}</div>
                             <div>
@@ -93,9 +93,7 @@
                         </div>
                         {% if c.content %}<div class="content-text">{{ c.content|safe }}</div>{% endif %}
                         {% if c.file %}
-                        <div style="margin-top:0.6rem">
-                            <a href="{{ c.file.url }}" class="exam-btn" style="background:var(--card-bg);color:var(--accent);border:1px solid var(--accent)" download><i class="fas fa-download"></i> Descargar demo</a>
-                        </div>
+                        <a href="{{ c.file.url }}" class="content-dl-btn" download><i class="fas fa-download"></i> Descargar demo</a>
                         {% endif %}
                     </div>
                     {% empty %}

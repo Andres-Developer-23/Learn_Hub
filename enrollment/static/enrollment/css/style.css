@@ -462,6 +462,12 @@ nav.scrolled {
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     border: 1px solid var(--card-border);
     position: relative;
+    display: flex; flex-direction: column;
+}
+.course-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 40%, rgba(96,165,250,0.03) 100%);
+    opacity: 0; transition: opacity 0.4s ease; pointer-events: none;
 }
 
 .course-card:hover {
@@ -470,6 +476,7 @@ nav.scrolled {
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4),
                 0 0 40px var(--accent-glow);
 }
+.course-card:hover::before { opacity: 1; }
 
 .course-image {
     height: 150px;
@@ -576,6 +583,7 @@ nav.scrolled {
 .course-footer {
     display: flex;
     justify-content: flex-end;
+    margin-top: auto;
 }
 
 .enroll-btn {
@@ -589,8 +597,18 @@ nav.scrolled {
     cursor: pointer;
     transition: all 0.3s ease;
     text-decoration: none;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
     text-align: center;
+}
+
+.enroll-btn::after {
+    content: '\f061';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 0.7rem;
+    transition: transform 0.3s ease;
 }
 
 .enroll-btn:hover {
@@ -599,6 +617,7 @@ nav.scrolled {
     box-shadow: 0 4px 15px rgba(79, 142, 247, 0.35);
     transform: scale(1.02);
 }
+.enroll-btn:hover::after { transform: translateX(3px); }
 
 .view-all-container {
     text-align: center;
@@ -1368,6 +1387,12 @@ footer {
     text-align: center;
     overflow: hidden;
 }
+.course-detail-hero::before {
+    content: ''; position: absolute; inset: 0; z-index: 0;
+    background:
+        linear-gradient(180deg, rgba(6,9,23,0.88) 0%, rgba(6,9,23,0.5) 50%, rgba(6,9,23,0.88) 100%),
+        radial-gradient(ellipse at 50% 0%, rgba(96,165,250,0.15) 0%, transparent 60%);
+}
 
 .course-detail-hero-bg {
     position: absolute;
@@ -1393,10 +1418,14 @@ footer {
     font-weight: 500;
     margin-bottom: 1.5rem;
     transition: color 0.2s;
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    border: 1px solid var(--card-border);
 }
 
 .back-link:hover {
     color: var(--accent);
+    border-color: var(--accent);
 }
 
 .course-detail-icon {
@@ -1410,6 +1439,7 @@ footer {
     color: var(--text-primary);
     margin-bottom: 1rem;
     line-height: 1.2;
+    letter-spacing: -0.03em;
 }
 
 .course-detail-meta {
@@ -1662,6 +1692,30 @@ footer {
     width: 100%;
     padding: 0.85rem;
     font-size: 0.92rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px var(--accent-glow);
+}
+
+.sidebar-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px var(--accent-glow);
+    filter: brightness(1.08);
+}
+
+.cta-final-btn.sidebar-cta {
+    /* Override the default cta-final-btn for sidebar */
+}
 }
 
 .exam-item {
