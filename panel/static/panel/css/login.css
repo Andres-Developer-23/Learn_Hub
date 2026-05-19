@@ -212,7 +212,7 @@ body::before {
     position: relative;
 }
 
-.field .input-wrap i {
+.field .input-wrap > i {
     position: absolute;
     left: 1rem;
     top: 50%;
@@ -224,7 +224,7 @@ body::before {
     z-index: 2;
 }
 
-.field.focused .input-wrap i { color: var(--accent); }
+.field.focused .input-wrap > i { color: var(--accent); }
 
 .field input {
     width: 100%;

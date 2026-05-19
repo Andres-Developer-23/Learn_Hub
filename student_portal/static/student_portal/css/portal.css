@@ -88,8 +88,8 @@ body::before {
 .field { margin-bottom: 1.25rem; animation: fadeUp .6s .2s both; }
 .field:nth-child(2) { animation-delay: .25s; }
 .field .input-wrap { position: relative; }
-.field .input-wrap i { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #475569; font-size: .9rem; transition: color .3s ease; pointer-events: none; z-index: 2; }
-.field.focused .input-wrap i { color: var(--acc); }
+.field .input-wrap > i { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #475569; font-size: .9rem; transition: color .3s ease; pointer-events: none; z-index: 2; }
+.field.focused .input-wrap > i { color: var(--acc); }
 .field input {
     width: 100%; padding: 1rem 1rem 1rem 2.8rem;
     background: rgba(255,255,255,0.02); border: 1.5px solid var(--br); border-radius: 14px;
